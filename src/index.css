@@ -1,0 +1,112 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --paper: 244 241 234; /* desk behind the note */
+    --card: 255 253 249; /* the note sheet itself */
+    --line: 231 226 215; /* ruled lines and borders */
+    --row: 249 246 239; /* row hover / active tint */
+    --text: 32 30 27;
+    --muted: 122 114 100;
+
+    /* Sticky offsets, kept in one place so the header, tabs and day headings
+       can never drift out of alignment. */
+    --header-h: 52px;
+    --tabs-h: 46px;
+  }
+
+  .dark {
+    --paper: 20 19 18;
+    --card: 29 28 26;
+    --line: 53 50 46;
+    --row: 38 36 33;
+    --text: 236 233 227;
+    --muted: 150 143 131;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  body {
+    @apply antialiased;
+    background-color: rgb(var(--paper));
+    color: rgb(var(--text));
+    /* Nothing scrolls sideways; month switching is by tab, not by page pan. */
+    overflow-x: hidden;
+  }
+
+  /* Inputs stay at 16px so iOS Safari doesn't zoom the page on focus. */
+  input,
+  textarea {
+    font-size: 16px;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-accent-500/60 ring-offset-2;
+    --tw-ring-offset-color: rgb(var(--paper));
+  }
+
+  /* Comfortable touch targets without visual bulk. */
+  button {
+    touch-action: manipulation;
+  }
+}
+
+@layer components {
+  .surface {
+    background-color: rgb(var(--card));
+  }
+  .hairline {
+    border-color: rgb(var(--line));
+  }
+  .muted {
+    color: rgb(var(--muted));
+  }
+  .rowtint {
+    background-color: rgb(var(--row));
+  }
+
+  /* Hover affordances are for pointers only — on touch the same controls are
+     always visible, since there is no hover to reveal them. */
+  @media (hover: hover) and (pointer: fine) {
+    .hover-reveal {
+      opacity: 0;
+      transition: opacity 150ms ease;
+    }
+    .group:hover .hover-reveal,
+    .hover-reveal:focus-within,
+    .hover-reveal:focus-visible {
+      opacity: 1;
+    }
+  }
+
+  /* The writing line is page, not UI: its caret is the focus indicator, so it
+     opts out of the global focus ring instead of drawing a box mid-sentence. */
+  .no-ring:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}

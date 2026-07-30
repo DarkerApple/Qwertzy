@@ -1,0 +1,59 @@
+name: Deploy to GitHub Pages
+
+# Builds the Vite app on every branch, and publishes dist/ to Pages from the
+# repo's default branch.
+#
+# Why only the default branch: the `github-pages` environment carries a
+# deployment branch policy that accepts the default branch alone. A deploy from
+# any other branch is rejected before the job is even given a runner — it fails
+# in about a second with no logs at all, which reads like a broken workflow but
+# is really a permissions rule. Skipping the job there keeps feature branches
+# green and honest: the build still proves the app compiles.
+#
+# One-time setup: repo Settings → Pages → Source = "GitHub Actions".
+
+on:
+  push:
+    branches: ['**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time; never cancel a publish that's already running.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      # Base path must match the Pages URL (/<repo>/), derived from the repo name.
+      - name: Build
+        run: npm run build
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}/
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    # Nothing else may deploy, so don't pretend otherwise by trying.
+    if: github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
