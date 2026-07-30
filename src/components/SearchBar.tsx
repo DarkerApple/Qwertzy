@@ -25,7 +25,7 @@ export const SearchBar = forwardRef<HTMLInputElement, Props>(function SearchBar(
         borderColor: 'rgb(var(--line))',
       }}
     >
-      <div className="mx-auto flex max-w-2xl items-center gap-2 px-3 py-2 sm:px-4">
+      <div className="mx-auto flex max-w-2xl lg:max-w-6xl items-center gap-2 px-3 py-2 sm:px-4">
         <div className="surface hairline flex flex-1 items-center gap-2 rounded-xl border px-3 py-1.5 focus-within:border-accent-400">
           <SearchIcon className="muted h-4 w-4 shrink-0" />
           <input

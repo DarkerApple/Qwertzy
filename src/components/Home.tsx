@@ -55,7 +55,7 @@ export function Home({
         className="sticky top-0 z-30 backdrop-blur-md"
         style={{ height: 'var(--header-h)', backgroundColor: 'rgb(var(--paper) / 0.82)' }}
       >
-        <div className="mx-auto flex h-full max-w-2xl items-center gap-2 px-4 sm:px-5">
+        <div className="mx-auto flex h-full max-w-2xl items-center gap-2 px-4 sm:px-5 lg:max-w-5xl">
           <QuartzBadge />
           <span className="text-[15px] font-semibold tracking-tight">Qwertzy</span>
           <div className="ml-auto flex items-center gap-0.5">
@@ -72,7 +72,7 @@ export function Home({
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-2xl px-4 pb-14 pt-4 sm:px-5">
+      <main className="mx-auto w-full max-w-2xl px-4 pb-14 pt-4 sm:px-5 lg:max-w-5xl">
         <h1 className="font-display text-[34px] leading-[1.05] tracking-tight sm:text-[42px]">
           Your notebooks
         </h1>
@@ -82,11 +82,12 @@ export function Home({
             : `${items.length} ${items.length === 1 ? 'note' : 'notes'} · ${open} still to do`}
         </p>
 
+        <div className="mt-6 lg:grid lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] lg:gap-3">
         {/* The one you almost always want, given the weight to match. */}
         <button
           type="button"
           onClick={() => onOpenMonth(thisMonth)}
-          className="surface hairline group relative mt-6 flex w-full items-center gap-4 overflow-hidden rounded-3xl border p-5 text-left shadow-sheet transition duration-200 hover:-translate-y-0.5 hover:border-accent-300 hover:shadow-lift dark:hover:border-accent-700"
+          className="surface hairline group relative flex w-full items-center gap-4 overflow-hidden rounded-3xl border p-5 text-left shadow-sheet transition duration-200 hover:-translate-y-0.5 hover:border-accent-300 hover:shadow-lift dark:hover:border-accent-700"
         >
           <span
             aria-hidden="true"
@@ -118,13 +119,29 @@ export function Home({
           <ChevronRightIcon className="muted relative h-5 w-5 shrink-0 transition group-hover:translate-x-0.5 group-hover:text-accent-600 dark:group-hover:text-accent-300" />
         </button>
 
+          {/* The numbers the month cards can only hint at, in space that was
+              empty on a wide screen. */}
+          <div className="surface hairline mt-3 hidden rounded-3xl border p-5 shadow-sheet lg:mt-0 lg:block">
+            <p className="muted text-[10px] font-semibold uppercase tracking-[0.18em]">
+              Altogether
+            </p>
+            <dl className="mt-3 space-y-2.5">
+              <Row label="Notes" value={items.length} />
+              <Row label="Still to do" value={open} />
+              <Row label="Done" value={items.length - open} />
+              <Row label="With threads" value={items.filter((i) => i.replies.length > 0).length} />
+              <Row label="Months written in" value={summaries.length} />
+            </dl>
+          </div>
+        </div>
+
         {years.map((year) => (
           <section key={year} className="mt-9">
             <div className="mb-3 flex items-center gap-3">
               <h2 className="font-display text-[19px] leading-none tracking-tight">{year}</h2>
               <span aria-hidden="true" className="hairline h-px flex-1 border-t" />
             </div>
-            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">
+            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-12">
               {MONTH_NAMES.map((name, i) => {
                 const key = `${year}-${String(i + 1).padStart(2, '0')}`;
                 return (
@@ -142,7 +159,7 @@ export function Home({
           </section>
         ))}
 
-        <div className="mt-9 grid gap-2.5 sm:grid-cols-2">
+        <div className="mt-9 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
           <ShelfCard
             onClick={onOpenGuide}
             icon={<BookIcon className="h-[18px] w-[18px]" />}
@@ -163,6 +180,13 @@ export function Home({
             title="Secret notes"
             subtitle={vaultOpen ? 'Unlocked — open it' : vaultExists ? 'Locked' : 'Set a password'}
           />
+          <ShelfCard
+            onClick={onOpenSettings}
+            icon={<SlidersIcon className="h-[18px] w-[18px]" />}
+            tone="accent"
+            title="Settings & plugins"
+            subtitle="Theme, accent, motion, sound"
+          />
         </div>
 
         <p className="muted mt-9 flex items-center justify-center gap-1.5 text-center text-[11px]">
@@ -170,6 +194,15 @@ export function Home({
           Everything is stored in this browser only
         </p>
       </main>
+    </div>
+  );
+}
+
+function Row({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="hairline flex items-baseline justify-between gap-3 border-b pb-2 last:border-b-0 last:pb-0">
+      <dt className="muted text-[12px]">{label}</dt>
+      <dd className="text-[15px] font-medium tabular-nums">{value}</dd>
     </div>
   );
 }

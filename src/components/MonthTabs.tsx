@@ -34,7 +34,7 @@ export function MonthTabs({ months, activeKey, onSelect }: Props) {
         ref={listRef}
         role="tablist"
         aria-label="Months"
-        className="no-scrollbar mx-auto flex max-w-2xl gap-1 overflow-x-auto px-3 sm:px-4"
+        className="no-scrollbar mx-auto flex max-w-2xl lg:max-w-6xl gap-1 overflow-x-auto px-3 sm:px-4"
         style={{ height: 'var(--tabs-h)' }}
       >
         {months.map((month) => {

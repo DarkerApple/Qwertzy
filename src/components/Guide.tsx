@@ -15,7 +15,7 @@ export function Guide({ onBack, onStart, themeToggle }: Props) {
         className="sticky top-0 z-30 backdrop-blur-md"
         style={{ height: 'var(--header-h)', backgroundColor: 'rgb(var(--paper) / 0.82)' }}
       >
-        <div className="mx-auto flex h-full max-w-2xl items-center gap-1 px-4 sm:px-5">
+        <div className="mx-auto flex h-full max-w-2xl items-center gap-1 px-4 sm:px-5 lg:max-w-5xl">
           <button
             type="button"
             onClick={onBack}
@@ -28,7 +28,7 @@ export function Guide({ onBack, onStart, themeToggle }: Props) {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-2xl px-4 pb-16 pt-3 sm:px-5">
+      <main className="mx-auto w-full max-w-2xl px-4 pb-16 pt-3 sm:px-5 lg:max-w-5xl">
         <h1 className="font-display text-[34px] leading-[1.05] tracking-tight sm:text-[42px]">
           How Qwertzy works
         </h1>
@@ -91,7 +91,7 @@ export function Guide({ onBack, onStart, themeToggle }: Props) {
           body="Every note opens a thread. Keep adding to it as the idea develops, and when the thinking produces an actual next step, one tap promotes that message into its own checkbox. Edit and Delete live in there too."
         />
 
-        <div className="hairline mt-8 rounded-2xl border border-dashed p-4">
+        <div className="lg:grid lg:grid-cols-2 lg:gap-3"><div className="hairline mt-8 rounded-2xl border border-dashed p-4 lg:mt-3">
           <h2 className="text-[14px] font-medium">Getting around</h2>
           <ul className="muted mt-2 space-y-1.5 text-[13px] leading-relaxed">
             <li>
@@ -117,6 +117,7 @@ export function Guide({ onBack, onStart, themeToggle }: Props) {
             <Shortcut keys="⌘ / Ctrl + Enter">finish a note now</Shortcut>
             <Shortcut keys="Esc">close a thread or search</Shortcut>
           </dl>
+        </div>
         </div>
 
         <p className="muted mt-6 text-[12px] leading-relaxed">

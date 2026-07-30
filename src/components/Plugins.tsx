@@ -74,7 +74,7 @@ export function Plugins({
         className="sticky top-0 z-30 backdrop-blur-md"
         style={{ height: 'var(--header-h)', backgroundColor: 'rgb(var(--paper) / 0.82)' }}
       >
-        <div className="mx-auto flex h-full max-w-2xl items-center gap-1 px-4 sm:px-5">
+        <div className="mx-auto flex h-full max-w-2xl items-center gap-1 px-4 sm:px-5 lg:max-w-5xl">
           <button
             type="button"
             onClick={onBack}
@@ -87,7 +87,7 @@ export function Plugins({
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-2xl px-4 pb-16 pt-3 sm:px-5">
+      <main className="mx-auto w-full max-w-2xl px-4 pb-16 pt-3 sm:px-5 lg:max-w-5xl">
         <div className="flex items-start gap-3">
           <div className="min-w-0 flex-1">
             <h1 className="font-display text-[34px] leading-[1.05] tracking-tight sm:text-[42px]">
@@ -115,7 +115,7 @@ export function Plugins({
 
         {showGuide && <PluginGuide />}
 
-        <div className="mt-6 space-y-2.5">
+        <div className="mt-6 space-y-2.5 lg:grid lg:grid-cols-2 lg:gap-2.5 lg:space-y-0">
           {plugins.length === 0 && !adding && (
             <div className="hairline rounded-2xl border border-dashed px-6 py-10 text-center">
               <p className="font-display text-[19px]">Nothing installed</p>

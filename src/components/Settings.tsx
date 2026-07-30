@@ -25,7 +25,7 @@ export function Settings({
         className="sticky top-0 z-30 backdrop-blur-md"
         style={{ height: 'var(--header-h)', backgroundColor: 'rgb(var(--paper) / 0.82)' }}
       >
-        <div className="mx-auto flex h-full max-w-2xl items-center gap-1 px-4 sm:px-5">
+        <div className="mx-auto flex h-full max-w-2xl items-center gap-1 px-4 sm:px-5 lg:max-w-4xl">
           <button
             type="button"
             onClick={onBack}
@@ -38,11 +38,12 @@ export function Settings({
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-2xl px-4 pb-16 pt-3 sm:px-5">
+      <main className="mx-auto w-full max-w-2xl px-4 pb-16 pt-3 sm:px-5 lg:max-w-4xl">
         <h1 className="font-display text-[34px] leading-[1.05] tracking-tight sm:text-[42px]">
           Settings
         </h1>
 
+        <div className="lg:grid lg:grid-cols-2 lg:gap-x-10">
         <Group title="Theme" hint="System follows whatever your device is set to.">
           <Segmented
             value={settings.theme}
@@ -107,6 +108,8 @@ export function Settings({
             ]}
           />
         </Group>
+
+        </div>
 
         <button
           type="button"

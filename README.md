@@ -152,6 +152,22 @@ code or spawn a clean global to get them back. Each call is capped at ~1.5s, and
 fails, hangs or returns nothing leaves your text exactly as written. It's a real barrier, not a
 formal sandbox: read the source before installing, which is what the **View source** button is for.
 
+## On a wide screen
+
+The column stays a readable width, and the space either side of it earns its keep rather than
+sitting blank:
+
+- **A month** gains a right-hand rail: how the month is going, what's counting down right now (live,
+  click to pause), what you just finished, and which notes have threads. All of it is already true
+  of the page beside it — this is the part you'd otherwise scroll to work out.
+- **Home** puts the current month beside an *Altogether* panel, and lays all twelve months of a year
+  out in a single row.
+- **Settings** falls into two columns; **Plugins** shows cards two-up; the guide's reference blocks
+  sit side by side.
+
+None of this exists below `lg` — on a phone the page is the whole story, and there's no horizontal
+scroll at any width.
+
 ## Mobile
 
 Built for a phone first: 44px touch targets around every control, 16px inputs so iOS never zooms on

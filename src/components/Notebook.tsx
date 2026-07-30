@@ -18,6 +18,7 @@ import { SearchBar } from './SearchBar';
 import { EmptyState } from './EmptyState';
 import { UndoToast } from './UndoToast';
 import { Menu } from './Menu';
+import { MonthAside } from './MonthAside';
 import { ChevronLeftIcon, ChevronRightIcon, HomeIcon, LockIcon, SearchIcon, SlidersIcon } from './icons';
 
 const EMPTY_MONTH = (key: string): MonthSummary => ({ key, total: 0, done: 0, open: 0, threads: 0 });
@@ -449,8 +450,10 @@ export function Notebook({
       <main
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
-        className="mx-auto w-full max-w-2xl px-4 pb-14 pt-5 sm:px-5 sm:pt-6"
+        className="mx-auto w-full max-w-2xl px-4 pb-14 pt-5 sm:px-5 sm:pt-6 lg:max-w-6xl"
       >
+        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_19rem] lg:items-start lg:gap-6">
+          <div className="min-w-0">
         {searchMode ? (
           <div className="space-y-4">
             <p className="muted px-1 text-[12px]">
@@ -503,6 +506,23 @@ export function Notebook({
             {counts.all > 0 && <FilterTabs filter={filter} onFilter={setFilter} counts={counts} />}
           </MonthNote>
         )}
+
+          </div>
+
+          {!searchMode && (
+            <MonthAside
+              monthKey={activeMonth}
+              summary={summary}
+              items={monthItems}
+              now={now}
+              onToggleTimer={(itemId, timerId) => {
+                setNow(Date.now());
+                toggleTimer(itemId, timerId);
+              }}
+              onOpenItem={(id) => setExpandedId(id)}
+            />
+          )}
+        </div>
 
         {!searchMode && (
           <p className="muted mt-6 text-center text-[11px]">
