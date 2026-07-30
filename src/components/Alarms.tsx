@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Alarm, Repeat } from '../lib/alarms';
 import { describeNext, describeRepeat, nextRing } from '../lib/alarms';
+import { QuartzBadge, QuartzCluster, QuartzCorner } from './QuartzMark';
 import { ChevronLeftIcon, PlusIcon, TrashIcon } from './icons';
 
 interface Props {
@@ -46,6 +47,7 @@ export function Alarms({ alarms, onAdd, onRemove, onSetEnabled, onBack, chrome }
             <ChevronLeftIcon className="h-[18px] w-[18px]" />
             <span className="text-[13px] font-medium">Back</span>
           </button>
+          <QuartzBadge className="ml-1 flex h-7 w-7 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-accent-400 to-accent-700 text-white ring-1 ring-inset ring-white/20" />
           <div className="ml-auto flex items-center gap-0.5">{chrome}</div>
         </div>
       </header>
@@ -62,6 +64,7 @@ export function Alarms({ alarms, onAdd, onRemove, onSetEnabled, onBack, chrome }
           <div className="space-y-2.5">
             {sorted.length === 0 && (
               <div className="hairline rounded-2xl border border-dashed px-6 py-10 text-center">
+                <QuartzCluster className="mb-4 h-14 w-24 text-accent-500" />
                 <p className="font-display text-[19px]">No alarms</p>
                 <p className="muted mx-auto mt-2 max-w-sm text-[13px] leading-relaxed">
                   Set one for a time of day and it'll ring while Qwertzy is open — with a
@@ -178,10 +181,11 @@ export function Alarms({ alarms, onAdd, onRemove, onSetEnabled, onBack, chrome }
 
             <button
               type="submit"
-              className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-xl bg-accent-600 px-4 py-2.5 text-[13px] font-semibold text-white transition hover:bg-accent-700 dark:bg-accent-500 dark:hover:bg-accent-400"
+              className="group relative mt-4 flex w-full items-center justify-center gap-1.5 overflow-hidden rounded-xl bg-accent-600 px-4 py-2.5 text-[13px] font-semibold text-white transition hover:bg-accent-700 dark:bg-accent-500 dark:hover:bg-accent-400"
             >
-              <PlusIcon className="h-4 w-4" />
-              Add alarm
+              <QuartzCorner corner="br" className="text-white opacity-0 group-hover:opacity-30" />
+              <PlusIcon className="relative h-4 w-4" />
+              <span className="relative">Add alarm</span>
             </button>
 
             <p className="muted mt-3 text-[11px] leading-relaxed">

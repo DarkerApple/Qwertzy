@@ -19,7 +19,8 @@ import { EmptyState } from './EmptyState';
 import { UndoToast } from './UndoToast';
 import { Menu } from './Menu';
 import { MonthAside } from './MonthAside';
-import { ChartIcon, ChevronLeftIcon, ChevronRightIcon, HomeIcon, LockIcon, SearchIcon, SlidersIcon } from './icons';
+import { QuartzBadge } from './QuartzMark';
+import { ChartIcon, ChevronLeftIcon, ChevronRightIcon, LockIcon, SearchIcon, SlidersIcon } from './icons';
 
 const EMPTY_MONTH = (key: string): MonthSummary => ({ key, total: 0, done: 0, open: 0, threads: 0 });
 
@@ -349,7 +350,7 @@ export function Notebook({
             aria-label="All years"
             className="muted flex h-9 items-center gap-1.5 rounded-xl pl-1 pr-2 transition hover:text-[rgb(var(--text))]"
           >
-            <HomeIcon className="h-[18px] w-[18px]" />
+            <QuartzBadge className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-accent-400 to-accent-700 text-white ring-1 ring-inset ring-white/20" />
             <span className="text-[13px] font-medium">Years</span>
           </button>
 

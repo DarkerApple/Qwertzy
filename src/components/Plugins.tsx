@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Plugin } from '../lib/plugins';
+import { QuartzBadge, QuartzCluster, QuartzCorner } from './QuartzMark';
 import { ChevronLeftIcon, HelpIcon, PlusIcon, TrashIcon } from './icons';
 import { PluginGuide } from './PluginGuide';
 
@@ -83,6 +84,7 @@ export function Plugins({
             <ChevronLeftIcon className="h-[18px] w-[18px]" />
             <span className="text-[13px] font-medium">Back</span>
           </button>
+          <QuartzBadge className="ml-1 flex h-7 w-7 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-accent-400 to-accent-700 text-white ring-1 ring-inset ring-white/20" />
           <div className="ml-auto">{chrome}</div>
         </div>
       </header>
@@ -118,6 +120,7 @@ export function Plugins({
         <div className="mt-6 space-y-2.5 lg:grid lg:grid-cols-2 lg:gap-2.5 lg:space-y-0">
           {plugins.length === 0 && !adding && (
             <div className="hairline rounded-2xl border border-dashed px-6 py-10 text-center">
+              <QuartzCluster className="mb-4 h-14 w-24 text-accent-500" />
               <p className="font-display text-[19px]">Nothing installed</p>
               <p className="muted mx-auto mt-2 max-w-sm text-[13px] leading-relaxed">
                 Plugins can rewrite what you type, split one line into several, or add a set of
@@ -214,10 +217,11 @@ export function Plugins({
           <button
             type="button"
             onClick={() => setAdding(true)}
-            className="hairline mt-4 flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed px-4 py-3 text-[13px] font-medium transition hover:border-accent-300 hover:text-accent-700 dark:hover:text-accent-300"
+            className="hairline group relative mt-4 flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl border border-dashed px-4 py-3 text-[13px] font-medium transition hover:border-accent-300 hover:text-accent-700 dark:hover:text-accent-300"
           >
-            <PlusIcon className="h-4 w-4" />
-            Add a plugin
+            <QuartzCorner corner="br" className="text-accent-600" />
+            <PlusIcon className="relative h-4 w-4" />
+            <span className="relative">Add a plugin</span>
           </button>
         )}
       </main>
@@ -242,7 +246,8 @@ function PluginCard({
   const manifest = plugin.manifest;
 
   return (
-    <div className="surface hairline animate-pop-in rounded-2xl border p-4">
+    <div className="surface hairline animate-pop-in group relative overflow-hidden rounded-2xl border p-4">
+      <QuartzCorner corner="br" className="text-accent-600" />
       <div className="flex items-start gap-3">
         <div className="min-w-0 flex-1">
           <p className="flex items-center gap-2 text-[14px] font-medium">

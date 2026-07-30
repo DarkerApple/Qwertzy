@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import type { Item } from '../types';
 import type { MonthSummary } from '../lib/group';
 import { monthLabel } from '../lib/time';
+import { QuartzMark } from './QuartzMark';
 
 interface Props {
   monthKey: string;
@@ -35,8 +36,10 @@ export function MonthNote({
   const pct = total ? Math.round((done / total) * 100) : 0;
 
   return (
-    <article className="surface hairline overflow-hidden rounded-3xl border shadow-sheet">
-      <header className="hairline border-b px-4 py-5 sm:px-6 sm:py-6">
+    <article className="surface hairline group relative overflow-hidden rounded-3xl border shadow-sheet">
+      {/* Always there, faintly — the page's own bit of quartz. */}
+      <QuartzMark className="pointer-events-none absolute -right-6 -top-8 hidden h-32 w-32 rotate-6 text-accent-500/[0.05] transition-transform duration-700 group-hover:rotate-0 sm:block" />
+      <header className="hairline relative border-b px-4 py-5 sm:px-6 sm:py-6">
         <div className="flex items-end justify-between gap-4">
           <div className="min-w-0">
             <h1 className="font-display text-[28px] leading-none tracking-tight sm:text-[32px]">

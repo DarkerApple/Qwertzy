@@ -4,7 +4,7 @@ import { monthSummaries } from '../lib/group';
 import type { MonthSummary } from '../lib/group';
 import { currentMonthKey, monthLabel } from '../lib/time';
 import { AlarmIcon, BookIcon, ChartIcon, ChevronRightIcon, LockIcon, SlidersIcon, SparkIcon, UnlockIcon } from './icons';
-import { QuartzBadge, QuartzMark } from './QuartzMark';
+import { QuartzCorner, QuartzMark, QuartzWordmark } from './QuartzMark';
 
 interface Props {
   items: Item[];
@@ -62,8 +62,7 @@ export function Home({
         style={{ height: 'var(--header-h)', backgroundColor: 'rgb(var(--paper) / 0.82)' }}
       >
         <div className="mx-auto flex h-full max-w-2xl items-center gap-2 px-4 sm:px-5 lg:max-w-5xl">
-          <QuartzBadge />
-          <span className="text-[15px] font-semibold tracking-tight">Qwertzy</span>
+          <QuartzWordmark />
           <div className="ml-auto flex items-center gap-0.5">
             {chrome}
             <button
@@ -253,8 +252,9 @@ function ShelfCard({
     <button
       type="button"
       onClick={onClick}
-      className={`surface hairline group flex items-center gap-3 rounded-2xl border p-4 text-left transition duration-200 hover:-translate-y-0.5 hover:shadow-sm ${hover}`}
+      className={`surface hairline group relative overflow-hidden rounded-2xl border p-4 text-left transition duration-200 hover:-translate-y-0.5 hover:shadow-sm ${hover}`}
     >
+      <QuartzCorner corner="br" className={tone === 'amber' ? 'text-amber-600' : 'text-accent-600'} />
       <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${chip}`}>
         {icon}
       </span>
@@ -302,13 +302,14 @@ function MonthCard({
       type="button"
       onClick={onOpen}
       aria-label={`${name} — ${total} ${total === 1 ? 'note' : 'notes'}`}
-      className={`surface rounded-2xl border px-3 py-3 text-left transition duration-200 hover:-translate-y-0.5 hover:shadow-sm ${
+      className={`surface group relative overflow-hidden rounded-2xl border px-3 py-3 text-left transition duration-200 hover:-translate-y-0.5 hover:shadow-sm ${
         isCurrent
           ? 'border-accent-400 ring-1 ring-accent-400/40 dark:border-accent-600 dark:ring-accent-600/40'
           : 'hairline hover:border-accent-300 dark:hover:border-accent-700'
       }`}
     >
-      <span className="flex items-baseline justify-between gap-1">
+      <QuartzCorner corner="br" className="h-9 w-9 text-accent-600" />
+      <span className="relative flex items-baseline justify-between gap-1">
         <span className="text-[13px] font-medium">{name}</span>
         {total > 0 && <span className="muted text-[11px] tabular-nums">{total}</span>}
       </span>

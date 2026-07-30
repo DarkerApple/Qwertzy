@@ -1,5 +1,6 @@
 import type { Settings as SettingsValues } from '../lib/settings';
 import { ACCENTS } from '../lib/settings';
+import { QuartzBadge, QuartzCorner } from './QuartzMark';
 import { AlarmIcon, ChevronLeftIcon, ChevronRightIcon, PuzzleIcon } from './icons';
 
 interface Props {
@@ -38,6 +39,7 @@ export function Settings({
             <ChevronLeftIcon className="h-[18px] w-[18px]" />
             <span className="text-[13px] font-medium">Back</span>
           </button>
+          <QuartzBadge className="ml-1 flex h-7 w-7 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-accent-400 to-accent-700 text-white ring-1 ring-inset ring-white/20" />
           <div className="ml-auto">{chrome}</div>
         </div>
       </header>
@@ -118,8 +120,9 @@ export function Settings({
         <button
           type="button"
           onClick={onOpenPlugins}
-          className="surface hairline group mt-7 flex w-full items-center gap-3 rounded-2xl border p-4 text-left transition duration-200 hover:-translate-y-0.5 hover:border-accent-300 hover:shadow-sm dark:hover:border-accent-700"
+          className="surface hairline group relative mt-7 flex w-full items-center gap-3 overflow-hidden rounded-2xl border p-4 text-left transition duration-200 hover:-translate-y-0.5 hover:border-accent-300 hover:shadow-sm dark:hover:border-accent-700"
         >
+          <QuartzCorner corner="br" className="text-accent-600" />
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent-500/10 text-accent-700 dark:text-accent-300">
             <PuzzleIcon className="h-[18px] w-[18px]" />
           </span>
@@ -137,8 +140,9 @@ export function Settings({
         <button
           type="button"
           onClick={onOpenAlarms}
-          className="surface hairline group mt-2.5 flex w-full items-center gap-3 rounded-2xl border p-4 text-left transition duration-200 hover:-translate-y-0.5 hover:border-amber-300 hover:shadow-sm dark:hover:border-amber-700/60"
+          className="surface hairline group relative mt-2.5 flex w-full items-center gap-3 overflow-hidden rounded-2xl border p-4 text-left transition duration-200 hover:-translate-y-0.5 hover:border-amber-300 hover:shadow-sm dark:hover:border-amber-700/60"
         >
+          <QuartzCorner corner="br" className="text-amber-600" />
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-300">
             <AlarmIcon className="h-[18px] w-[18px]" />
           </span>

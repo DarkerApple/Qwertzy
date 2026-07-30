@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { QuartzBadge, QuartzCorner } from './QuartzMark';
 import { ChevronLeftIcon } from './icons';
 
 interface Props {
@@ -24,6 +25,7 @@ export function Guide({ onBack, onStart, chrome }: Props) {
             <ChevronLeftIcon className="h-[18px] w-[18px]" />
             <span className="text-[13px] font-medium">Back</span>
           </button>
+          <QuartzBadge className="ml-1 flex h-7 w-7 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-accent-400 to-accent-700 text-white ring-1 ring-inset ring-white/20" />
           <div className="ml-auto">{chrome}</div>
         </div>
       </header>
@@ -128,9 +130,10 @@ export function Guide({ onBack, onStart, chrome }: Props) {
         <button
           type="button"
           onClick={onStart}
-          className="mt-6 w-full rounded-2xl bg-accent-600 px-4 py-3 text-[14px] font-semibold text-white transition hover:bg-accent-700 dark:bg-accent-500 dark:hover:bg-accent-400"
+          className="group relative mt-6 w-full overflow-hidden rounded-2xl bg-accent-600 px-4 py-3 text-[14px] font-semibold text-white transition hover:bg-accent-700 dark:bg-accent-500 dark:hover:bg-accent-400"
         >
-          Start writing
+          <QuartzCorner corner="br" className="text-white opacity-0 group-hover:opacity-30" />
+          <span className="relative">Start writing</span>
         </button>
       </main>
     </div>

@@ -3,6 +3,7 @@ import type { Item } from '../types';
 import { inMonth, inWrittenOrder } from '../lib/group';
 import { monthLabel, timeLabel } from '../lib/time';
 import { withoutTimerTokens } from '../lib/timer';
+import { QuartzBadge } from './QuartzMark';
 import { ChevronLeftIcon } from './icons';
 import { Plot } from './Plot';
 
@@ -55,6 +56,7 @@ export function Visualize({ items, month, onBack, onOpenMonth, chrome }: Props) 
             <ChevronLeftIcon className="h-[18px] w-[18px]" />
             <span className="text-[13px] font-medium">Back</span>
           </button>
+          <QuartzBadge className="ml-1 flex h-7 w-7 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-accent-400 to-accent-700 text-white ring-1 ring-inset ring-white/20" />
           <div className="ml-auto flex items-center gap-0.5">{chrome}</div>
         </div>
       </header>
