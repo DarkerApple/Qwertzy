@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Safari pinned tabs and the browser sidebars that tint their own icon get
+       one flat colour, so the facets can't be shaded — they're cut as gaps
+       instead. Drawn heavier than the app icon so it survives being tinted and
+       shown at 16px in a strip of other favicons. -->
+  <g fill="black">
+    <path d="M24 10h16l-3.2 5H27.2z" />
+    <path d="M22.4 12.2 8.5 27.4h13.2l5.1-10.6z" />
+    <path d="M41.6 12.2 55.5 27.4H42.3l-5.1-10.6z" />
+    <path d="M29.4 17.6h5.2l4.8 9.8H24.6z" />
+    <path d="M9.6 30.4h13.1L30 55.2z" />
+    <path d="M54.4 30.4H41.3L34 55.2z" />
+    <path d="M25.6 30.4h12.8L32 52.6z" />
+  </g>
+</svg>

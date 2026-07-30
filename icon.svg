@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="q-bg" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0" stop-color="#8b7ff5" />
+      <stop offset="0.55" stop-color="#5b51d8" />
+      <stop offset="1" stop-color="#3f37a8" />
+    </linearGradient>
+    <linearGradient id="q-sheen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.22" />
+      <stop offset="0.5" stop-color="#ffffff" stop-opacity="0" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#q-bg)" />
+  <rect width="64" height="64" rx="15" fill="url(#q-sheen)" />
+  <!-- A cut gem: table, two crown facets, two pavilion facets. The tones do
+       the work — at 16px the facets merge into a clean silhouette. -->
+  <g fill="#ffffff">
+    <path d="M26 14h12l10 13H16z" opacity="0.34" />
+    <path d="M26 14 16 27h16V14z" opacity="0.95" />
+    <path d="M38 14l10 13H32V14z" opacity="0.62" />
+    <path d="M16 27h16v27z" opacity="0.88" />
+    <path d="M48 27H32v27z" opacity="0.5" />
+  </g>
+</svg>
