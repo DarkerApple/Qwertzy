@@ -17,12 +17,11 @@ export function QuartzMark({ className }: Props) {
       className={className ?? 'h-4 w-4'}
       aria-hidden="true"
     >
-      {/* Left face, right face and the tip, as three shapes with the facet
-          edges left as gaps — the tile colour shows through as the cut. */}
-      <path d="M11.2 2.6L5.6 8.9l4.9 1.7z" />
-      <path d="M12.8 2.6l5.6 6.3-4.9 1.7z" />
-      <path d="M5.4 10.2l4.8 1.7 0.6 9.5-3.9-1.6z" />
-      <path d="M18.6 10.2l-4.8 1.7-0.6 9.5 3.9-1.6z" />
+      {/* Two facets meeting at a central ridge. Kept to two shapes so the
+          crystal still reads at 16px in a browser tab — an outlined version,
+          or one cut into four, turns to mush at that size. */}
+      <path d="M11.55 2.4 5.6 8.9 7.2 20.4 11.55 21.6z" />
+      <path d="M12.45 2.4 18.4 8.9 16.8 20.4 12.45 21.6z" />
     </svg>
   );
 }

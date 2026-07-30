@@ -10,7 +10,18 @@
     --row: 249 246 239; /* row hover / active tint */
     --text: 32 30 27;
     --muted: 122 114 100;
-    --glow: 110 105 232; /* the wash behind the page */
+    --glow: var(--accent-500); /* the wash behind the page follows the accent */
+
+    --accent-50: 238 240 255;
+    --accent-100: 224 227 255;
+    --accent-200: 199 203 254;
+    --accent-300: 166 169 250;
+    --accent-400: 135 133 243;
+    --accent-500: 110 105 232;
+    --accent-600: 91 81 216;
+    --accent-700: 76 65 189;
+    --accent-800: 63 55 152;
+    --accent-900: 54 49 121;
 
     /* Sticky offsets, kept in one place so the header, tabs and day headings
        can never drift out of alignment. */
@@ -25,7 +36,69 @@
     --row: 38 36 33;
     --text: 236 233 227;
     --muted: 150 143 131;
-    --glow: 138 133 243;
+  }
+
+
+  /* Accents. Each swaps the whole ramp, so every accent-* class follows. */
+  :root[data-accent='teal'] {
+    --accent-50: 236 253 250;
+    --accent-100: 204 251 241;
+    --accent-200: 153 246 228;
+    --accent-300: 94 234 212;
+    --accent-400: 45 212 191;
+    --accent-500: 20 184 166;
+    --accent-600: 13 148 136;
+    --accent-700: 15 118 110;
+    --accent-800: 17 94 89;
+    --accent-900: 19 78 74;
+  }
+  :root[data-accent='rose'] {
+    --accent-50: 255 241 242;
+    --accent-100: 255 228 230;
+    --accent-200: 254 205 211;
+    --accent-300: 253 164 175;
+    --accent-400: 251 113 133;
+    --accent-500: 244 63 94;
+    --accent-600: 225 29 72;
+    --accent-700: 190 18 60;
+    --accent-800: 159 18 57;
+    --accent-900: 136 19 55;
+  }
+  :root[data-accent='amber'] {
+    --accent-50: 255 251 235;
+    --accent-100: 254 243 199;
+    --accent-200: 253 230 138;
+    --accent-300: 252 211 77;
+    --accent-400: 251 191 36;
+    --accent-500: 245 158 11;
+    --accent-600: 217 119 6;
+    --accent-700: 180 83 9;
+    --accent-800: 146 64 14;
+    --accent-900: 120 53 15;
+  }
+  :root[data-accent='slate'] {
+    --accent-50: 248 250 252;
+    --accent-100: 241 245 249;
+    --accent-200: 226 232 240;
+    --accent-300: 203 213 225;
+    --accent-400: 148 163 184;
+    --accent-500: 100 116 139;
+    --accent-600: 71 85 105;
+    --accent-700: 51 65 85;
+    --accent-800: 30 41 59;
+    --accent-900: 15 23 42;
+  }
+  .dark {
+    --glow: var(--accent-400);
+  }
+
+  /* An explicit "reduce motion" switch, alongside the OS one. */
+  :root[data-motion='reduced'] *,
+  :root[data-motion='reduced'] *::before,
+  :root[data-motion='reduced'] *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 
   html {

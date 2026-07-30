@@ -25,24 +25,37 @@ export default {
           900: '#1d1c1a',
           950: '#131211',
         },
-        accent: {
-          50: '#eef0ff',
-          100: '#e0e3ff',
-          200: '#c7cbfe',
-          300: '#a6a9fa',
-          400: '#8785f3',
-          500: '#6e69e8',
-          600: '#5b51d8',
-          700: '#4c41bd',
-          800: '#3f3798',
-          900: '#363179',
-        },
+        // Driven by CSS variables so the Settings page can swap the accent
+        // without every accent-* class in the app needing to change.
+        accent: Object.fromEntries(
+          [50, 100, 200, 300, 400, 500, 600, 700, 800, 900].map((step) => [
+            step,
+            `rgb(var(--accent-${step}) / <alpha-value>)`,
+          ]),
+        ),
       },
       boxShadow: {
         sheet: '0 1px 2px rgb(0 0 0 / 0.04), 0 16px 40px -24px rgb(0 0 0 / 0.35)',
         lift: '0 8px 30px -12px rgb(0 0 0 / 0.35)',
       },
       keyframes: {
+        'page-in': {
+          '0%': { opacity: '0', transform: 'translateY(6px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        'check-pop': {
+          '0%': { transform: 'scale(1)' },
+          '45%': { transform: 'scale(1.18)' },
+          '100%': { transform: 'scale(1)' },
+        },
+        'ring-pulse': {
+          '0%, 100%': { transform: 'scale(1)', opacity: '1' },
+          '50%': { transform: 'scale(1.04)', opacity: '0.86' },
+        },
+        'toast-in': {
+          '0%': { opacity: '0', transform: 'translateY(14px) scale(0.97)' },
+          '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
+        },
         'pop-in': {
           '0%': { opacity: '0', transform: 'translateY(-4px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
@@ -57,6 +70,10 @@ export default {
         },
       },
       animation: {
+        'page-in': 'page-in 260ms cubic-bezier(0.22, 1, 0.36, 1)',
+        'check-pop': 'check-pop 260ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+        'ring-pulse': 'ring-pulse 1.6s ease-in-out infinite',
+        'toast-in': 'toast-in 260ms cubic-bezier(0.22, 1, 0.36, 1)',
         'pop-in': 'pop-in 180ms cubic-bezier(0.2, 0.8, 0.2, 1)',
         'slide-up': 'slide-up 220ms cubic-bezier(0.2, 0.8, 0.2, 1)',
         'fade-in': 'fade-in 200ms ease-out',

@@ -126,6 +126,28 @@ export const SparkIcon = (p: Props) => (
   </Svg>
 );
 
+export const HelpIcon = (p: Props) => (
+  <Svg {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M9.6 9.4a2.5 2.5 0 114 2.3c-.9.6-1.6 1-1.6 2" />
+    <circle cx="12" cy="17" r="0.6" fill="currentColor" />
+  </Svg>
+);
+
+export const PuzzleIcon = (p: Props) => (
+  <Svg {...p}>
+    <path d="M10 4.5a1.8 1.8 0 013.6 0V6H16a1 1 0 011 1v2.4h1.5a1.8 1.8 0 010 3.6H17V16a1 1 0 01-1 1h-2.4v1.5a1.8 1.8 0 01-3.6 0V17H7a1 1 0 01-1-1v-2.5H4.5a1.8 1.8 0 010-3.5H6V7a1 1 0 011-1h3z" />
+  </Svg>
+);
+
+export const SlidersIcon = (p: Props) => (
+  <Svg {...p}>
+    <path d="M4 7h10M18 7h2M4 17h4M12 17h8" />
+    <circle cx="16" cy="7" r="2" />
+    <circle cx="10" cy="17" r="2" />
+  </Svg>
+);
+
 export const ChevronLeftIcon = (p: Props) => (
   <Svg {...p}>
     <path d="M15 5l-7 7 7 7" />

@@ -3,7 +3,7 @@ import type { Item } from '../types';
 import { monthSummaries } from '../lib/group';
 import type { MonthSummary } from '../lib/group';
 import { currentMonthKey, monthLabel } from '../lib/time';
-import { BookIcon, ChevronRightIcon, LockIcon, SparkIcon, UnlockIcon } from './icons';
+import { BookIcon, ChevronRightIcon, LockIcon, SlidersIcon, SparkIcon, UnlockIcon } from './icons';
 import { QuartzBadge, QuartzMark } from './QuartzMark';
 
 interface Props {
@@ -13,6 +13,7 @@ interface Props {
   onOpenMonth: (key: string) => void;
   onOpenGuide: () => void;
   onOpenSecret: () => void;
+  onOpenSettings: () => void;
   themeToggle: React.ReactNode;
 }
 
@@ -31,6 +32,7 @@ export function Home({
   onOpenMonth,
   onOpenGuide,
   onOpenSecret,
+  onOpenSettings,
   themeToggle,
 }: Props) {
   const thisMonth = currentMonthKey();
@@ -56,7 +58,17 @@ export function Home({
         <div className="mx-auto flex h-full max-w-2xl items-center gap-2 px-4 sm:px-5">
           <QuartzBadge />
           <span className="text-[15px] font-semibold tracking-tight">Qwertzy</span>
-          <div className="ml-auto">{themeToggle}</div>
+          <div className="ml-auto flex items-center gap-0.5">
+            {themeToggle}
+            <button
+              type="button"
+              onClick={onOpenSettings}
+              aria-label="Settings"
+              className="muted flex h-9 w-9 items-center justify-center rounded-xl transition duration-200 hover:rotate-45 hover:text-[rgb(var(--text))]"
+            >
+              <SlidersIcon />
+            </button>
+          </div>
         </div>
       </header>
 

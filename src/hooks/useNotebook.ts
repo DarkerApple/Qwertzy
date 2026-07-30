@@ -72,11 +72,36 @@ export function useNotebook(storage: NotebookStorage) {
     return created.length;
   }, []);
 
+  /**
+   * Ticking a note off stops its clocks. A timer paces the thing you're doing;
+   * once the thing is done, letting it run on to ring later is just noise. The
+   * time left is kept, so un-ticking and pressing play resumes from where it
+   * stopped rather than starting over.
+   */
   const toggle = useCallback((id: string) => {
     setItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, done: !item.done, doneAt: item.done ? null : Date.now() } : item,
-      ),
+      prev.map((item) => {
+        if (item.id !== id) return item;
+        const now = Date.now();
+        const done = !item.done;
+        return {
+          ...item,
+          done,
+          doneAt: done ? now : null,
+          timers: done
+            ? item.timers.map((timer) =>
+                timer.state === 'running'
+                  ? {
+                      ...timer,
+                      state: 'paused' as const,
+                      remainingMs: remainingMs(timer, now),
+                      endsAt: null,
+                    }
+                  : timer,
+              )
+            : item.timers,
+        };
+      }),
     );
   }, []);
 

@@ -18,7 +18,7 @@ import { SearchBar } from './SearchBar';
 import { EmptyState } from './EmptyState';
 import { UndoToast } from './UndoToast';
 import { Menu } from './Menu';
-import { ChevronLeftIcon, ChevronRightIcon, HomeIcon, LockIcon, SearchIcon } from './icons';
+import { ChevronLeftIcon, ChevronRightIcon, HomeIcon, LockIcon, SearchIcon, SlidersIcon } from './icons';
 
 const EMPTY_MONTH = (key: string): MonthSummary => ({ key, total: 0, done: 0, open: 0, threads: 0 });
 
@@ -31,6 +31,12 @@ interface Props {
   /** The secret notebook says so, and can be shut again. */
   secret?: boolean;
   onLock?: () => void;
+  onOpenSettings: () => void;
+  /** Runs what was written through any enabled plugins first. */
+  applyCapture?: (text: string) => Promise<string[]>;
+  /** Notes handed over from elsewhere — a plugin command, say. */
+  incoming?: string[];
+  onIncomingHandled?: () => void;
   themeToggle: React.ReactNode;
 }
 
@@ -47,6 +53,10 @@ export function Notebook({
   onHome,
   secret = false,
   onLock,
+  onOpenSettings,
+  applyCapture,
+  incoming,
+  onIncomingHandled,
   themeToggle,
 }: Props) {
   const {
@@ -168,8 +178,21 @@ export function Notebook({
   }, [thisMonth]);
 
   function handleCapture(text: string) {
+    if (applyCapture) {
+      void applyCapture(text).then((pieces) => {
+        // A plugin returning nothing usable must not swallow what was written.
+        const notes = pieces.length ? pieces : [text];
+        for (const note of notes) capture(note);
+        afterCapture(text);
+      });
+      return;
+    }
     const added = capture(text);
     if (!added) return;
+    afterCapture(text);
+  }
+
+  function afterCapture(text: string) {
     // Writing a timer starts it, so this is the moment to ask about
     // notifications — inside the keystroke that started it.
     if (hasTimer(text)) void ensurePermission();
@@ -180,6 +203,17 @@ export function Notebook({
     setFilter('all');
     justCaptured.current = true;
   }
+
+  // Notes handed over from a plugin command: add them once, then tell the
+  // sender they've landed so a re-render can't add them twice.
+  useEffect(() => {
+    if (!incoming || incoming.length === 0) return;
+    for (const note of incoming) capture(note);
+    setActiveMonth(thisMonth);
+    setFilter('all');
+    justCaptured.current = true;
+    onIncomingHandled?.();
+  }, [incoming, capture, thisMonth, onIncomingHandled]);
 
   // Writing happens at the bottom of the page — keep the line you're on in view
   // as the page grows above it.
@@ -368,6 +402,14 @@ export function Notebook({
               </button>
             )}
             {themeToggle}
+            <button
+              type="button"
+              onClick={onOpenSettings}
+              aria-label="Settings"
+              className="muted flex h-9 w-9 items-center justify-center rounded-xl transition duration-200 hover:rotate-45 hover:text-[rgb(var(--text))]"
+            >
+              <SlidersIcon />
+            </button>
             <Menu
               doneCount={items.filter((i) => i.done).length}
               onClearDone={clearDone}

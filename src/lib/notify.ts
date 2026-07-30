@@ -1,3 +1,5 @@
+import { loadSettings } from './settings';
+
 /**
  * Telling you a timer finished.
  *
@@ -29,7 +31,7 @@ export async function ensurePermission(): Promise<NotificationPermission | 'unsu
 }
 
 export function notifyTimerDone(title: string, body: string): void {
-  chime();
+  if (loadSettings().chime) chime();
   if (!notificationsSupported() || Notification.permission !== 'granted') return;
   try {
     const notification = new Notification(title, { body, tag: `qwertzy-${title}-${body}` });

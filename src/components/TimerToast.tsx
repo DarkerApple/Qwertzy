@@ -13,7 +13,7 @@ export function TimerToast({ text, label, onDismiss }: Props) {
   return (
     <div
       role="alert"
-      className="animate-slide-up surface pointer-events-auto flex max-w-[calc(100vw-1.5rem)] items-center gap-3 rounded-2xl border border-amber-400/60 py-2 pl-4 pr-2 shadow-lift"
+      className="animate-toast-in surface pointer-events-auto flex max-w-[calc(100vw-1.5rem)] items-center gap-3 rounded-2xl border border-amber-400/60 py-2 pl-4 pr-2 shadow-lift"
     >
       <span className="text-[15px]" aria-hidden="true">
         ⏱

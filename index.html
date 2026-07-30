@@ -3,26 +3,40 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <!-- SVG first for browsers that take it; the PNGs cover the rest, and the
+         180px one is what iOS uses when the app is added to a home screen. -->
     <link rel="icon" type="image/svg+xml" href="./icon.svg" />
-    <meta name="theme-color" content="#faf9f6" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#121110" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="./favicon-192.png" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <meta name="theme-color" content="#f4f1ea" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#141312" media="(prefers-color-scheme: dark)" />
     <meta
       name="description"
       content="Qwertzy — catch a thought, get a checklist. Notes turn into tasks, tasks open into threads, everything filed by month."
     />
     <title>Qwertzy</title>
     <script>
-      // Set the theme before first paint so there is no flash of the wrong background.
+      // Theme and accent are applied before first paint, so there's no flash of
+      // the wrong colours. Mirrors lib/settings.ts — keep the two in step.
       (function () {
         try {
-          var saved =
-            localStorage.getItem('qwertzy.theme') || localStorage.getItem('listify.theme');
-          var dark = saved
-            ? saved === 'dark'
-            : window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var s = JSON.parse(localStorage.getItem('qwertzy.settings.v1') || '{}');
+          var theme = s.theme;
+          if (!theme) {
+            var old = localStorage.getItem('qwertzy.theme') || localStorage.getItem('listify.theme');
+            theme = old === 'dark' || old === 'light' ? old : 'system';
+          }
+          var dark =
+            theme === 'system'
+              ? window.matchMedia('(prefers-color-scheme: dark)').matches
+              : theme === 'dark';
           if (dark) document.documentElement.classList.add('dark');
+          if (s.accent) document.documentElement.dataset.accent = s.accent;
+          if (s.motion) document.documentElement.dataset.motion = s.motion;
         } catch (e) {
-          /* private mode — fall back to light */
+          /* private mode — fall back to the light default */
         }
       })();
     </script>

@@ -9,7 +9,7 @@ export function UndoToast({ text, onUndo, onDismiss }: Props) {
   return (
     <div
       role="status"
-      className="animate-slide-up surface hairline pointer-events-auto flex max-w-[calc(100vw-1.5rem)] items-center gap-3 rounded-2xl border py-2 pl-4 pr-2 shadow-lift"
+      className="animate-toast-in surface hairline pointer-events-auto flex max-w-[calc(100vw-1.5rem)] items-center gap-3 rounded-2xl border py-2 pl-4 pr-2 shadow-lift"
     >
       <span className="truncate text-[13px]">
         Deleted <span className="muted">“{text}”</span>

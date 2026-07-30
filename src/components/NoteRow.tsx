@@ -96,10 +96,10 @@ export function NoteRow({
           className="-m-2.5 shrink-0 p-2.5"
         >
           <span
-            className={`flex h-[22px] w-[22px] items-center justify-center rounded-[7px] border-[1.5px] transition ${
+            className={`flex h-[22px] w-[22px] items-center justify-center rounded-[7px] border-[1.5px] transition duration-200 ${
               item.done
-                ? 'border-accent-600 bg-accent-600 text-white dark:border-accent-500 dark:bg-accent-500'
-                : 'hairline group-hover:border-accent-400'
+                ? 'animate-check-pop border-accent-600 bg-accent-600 text-white dark:border-accent-500 dark:bg-accent-500'
+                : 'hairline group-hover:scale-105 group-hover:border-accent-400'
             }`}
           >
             {item.done && <CheckIcon className="h-[14px] w-[14px]" />}

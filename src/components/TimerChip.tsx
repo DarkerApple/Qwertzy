@@ -65,7 +65,9 @@ export function TimerChip({ timer, now, onToggle, onReset }: Props) {
 
   return (
     <span
-      className={`relative mx-0.5 inline-flex select-none items-center gap-1.5 overflow-hidden rounded-full border py-0.5 pl-1.5 pr-1 align-baseline text-[12px] leading-5 ${tone}`}
+      className={`relative mx-0.5 inline-flex select-none items-center gap-1.5 overflow-hidden rounded-full border py-0.5 pl-1.5 pr-1 align-baseline text-[12px] leading-5 transition-colors duration-300 ${tone} ${
+        done ? 'animate-ring-pulse' : ''
+      }`}
       title={title}
     >
       {/* Progress sits behind the controls rather than beside them. */}

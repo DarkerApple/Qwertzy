@@ -43,7 +43,7 @@ Inside a notebook, month tabs sit under the header, oldest on the left, each bad
 items are still open. The active tab always scrolls itself into view, and **Years** in the header
 goes back to the contents page.
 
-Routes live in the URL hash — `#/`, `#/m/2026-07`, `#/guide`, `#/secret` — so browser back and
+Routes live in the URL hash — `#/`, `#/m/2026-07`, `#/guide`, `#/settings`, `#/plugins`, `#/secret` — so browser back and
 forward retrace your steps and a reload lands where you were. Flicking between months replaces the
 entry rather than stacking one per month.
 
@@ -86,6 +86,10 @@ it. When one finishes you get a system notification (permission is asked once, o
 starts your first timer), a two-note chime, and a banner in the app — so a blocked or muted
 notification still reaches you.
 
+Ticking a note off stops its timers — a timer paces the thing you're doing, and once it's done,
+ringing later is just noise. The time left is kept, so un-ticking and pressing play resumes rather
+than restarting.
+
 Timers store an absolute end time, so a running one survives a reload and keeps the right time. They
 only ring while the page is open, though: this app has no background worker, and a timer that
 expired while the tab was closed is shown as finished rather than announced hours late.
@@ -122,6 +126,31 @@ Consequences worth stating plainly:
 
 What it is not: protection against someone who already controls your browser or machine. It keeps
 secret notes out of a shoulder-surf, a shared laptop, or a casual look through localStorage.
+
+## Settings
+
+**Settings** (the sliders in the header) covers:
+
+- **Theme** — System, Light or Dark. System follows the OS live, including a change made while the
+  app is open.
+- **Accent** — Indigo, Teal, Rose, Amber or Graphite. The whole `accent-*` ramp is CSS variables, so
+  one attribute on `<html>` recolours checkboxes, timers, progress bars and links at once.
+- **Motion** — turn animations down. The OS's own reduce-motion setting is always honoured on top.
+- **Timer sound** — the two-note chime when a timer finishes.
+
+Theme and accent are applied before first paint by a snippet in `index.html`, so there's no flash of
+the wrong colours on load.
+
+## Plugins
+
+Community plugins can rewrite what you write, split one line into several, or add a set of notes on
+demand. **Settings → Plugins**, and the **?** there opens the full guide. See [PLUGINS.md](PLUGINS.md).
+
+Plugins run in a Web Worker with the network taken away — `fetch`, `XMLHttpRequest`, `WebSocket`,
+`EventSource` and `sendBeacon` removed, plus `importScripts` and `Worker` so nothing can pull in more
+code or spawn a clean global to get them back. Each call is capped at ~1.5s, and a plugin that
+fails, hangs or returns nothing leaves your text exactly as written. It's a real barrier, not a
+formal sandbox: read the source before installing, which is what the **View source** button is for.
 
 ## Mobile
 
@@ -161,10 +190,14 @@ src/
   App.tsx              the shell: routes, theme, and who holds the vault key
   types.ts             Item + Reply + NoteTimer
   hooks/useNotebook.ts every mutation, written back through a storage adapter
+  hooks/useSettings.ts theme, accent, motion, sound — applied to <html>
+  hooks/usePlugins.ts  installed plugins, kept loaded in the worker
   hooks/useRoute.ts    the current hash route
   hooks/useTheme.ts    light/dark, applied pre-paint in index.html
   lib/route.ts         four routes, parsed and built
   lib/vault.ts         PBKDF2 + AES-GCM behind the same storage interface
+  lib/settings.ts      the settings themselves, and applying them
+  lib/plugins.ts       the worker sandbox and its message protocol
   lib/parse.ts         what you wrote -> notes (blank line splits, lists split)
   lib/group.ts         month summaries, page order, filtering, search
   lib/time.ts          month/day keys and the short margin stamps
@@ -174,6 +207,9 @@ src/
   components/
     Home.tsx           the contents page: years, months, guide, secret notes
     Guide.tsx          how it works, in four steps
+    Settings.tsx       theme, accent, motion, sound
+    Plugins.tsx        install, enable, run — with ? for the guide
+    PluginGuide.tsx    how to write one
     Notebook.tsx       a whole notebook — used for both the everyday and secret one
     VaultGate.tsx      set a password, or enter it
     MonthTabs.tsx      the navigation
