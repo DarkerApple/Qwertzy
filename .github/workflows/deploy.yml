@@ -1,16 +1,20 @@
 name: Deploy to GitHub Pages
 
-# Builds the Vite app on every branch, and publishes dist/ to Pages from the
-# repo's default branch.
+# Builds the app on every branch, and from the default branch publishes it two
+# ways, because GitHub Pages has two mutually exclusive sources and only the
+# repo owner can choose between them:
 #
-# Why only the default branch: the `github-pages` environment carries a
-# deployment branch policy that accepts the default branch alone. A deploy from
-# any other branch is rejected before the job is even given a runner — it fails
-# in about a second with no logs at all, which reads like a broken workflow but
-# is really a permissions rule. Skipping the job there keeps feature branches
-# green and honest: the build still proves the app compiles.
+#   Settings → Pages → Source = "GitHub Actions"        → the `deploy` job below
+#   Settings → Pages → Source = "Deploy from a branch"  → branch `gh-pages` / root
 #
-# One-time setup: repo Settings → Pages → Source = "GitHub Actions".
+# Whichever is selected, one of these jobs feeds it. The one that isn't selected
+# is harmless: `deploy` fails with a clear 404 when Pages isn't in Actions mode,
+# and `publish-branch` just leaves an unused branch sitting there.
+#
+# What never works is "Deploy from a branch → main / root": that serves the
+# repository verbatim, and this repo's root index.html is Vite *source*, whose
+# only script tag points at /src/main.tsx. There's no such file on a built site
+# and browsers can't run .tsx, so the page loads to nothing.
 
 on:
   push:
@@ -42,13 +46,19 @@ jobs:
         run: npm run build
         env:
           BASE_PATH: /${{ github.event.repository.name }}/
+      - name: Add .nojekyll
+        # Pages otherwise runs Jekyll, which drops files and folders beginning
+        # with an underscore.
+        run: touch dist/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
+  # Source = "GitHub Actions".
   deploy:
     needs: build
-    # Nothing else may deploy, so don't pretend otherwise by trying.
+    # The github-pages environment only accepts the default branch; a deploy
+    # from anywhere else is refused before the job is even given a runner.
     if: github.ref_name == github.event.repository.default_branch
     runs-on: ubuntu-latest
     environment:
@@ -57,3 +67,39 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+        # Not fatal: in branch mode this returns 404, and gh-pages below is
+        # doing the publishing instead.
+        continue-on-error: true
+
+  # Source = "Deploy from a branch" → gh-pages.
+  publish-branch:
+    if: github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Build
+        run: npm run build
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}/
+      - name: Push dist/ to gh-pages
+        # Plain git rather than a third-party action: it's a force-push of one
+        # orphan commit, and the branch carries only build output.
+        run: |
+          touch dist/.nojekyll
+          cd dist
+          git init -q
+          git checkout -q -b gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Build of ${{ github.sha }}"
+          git push -f \
+            "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" \
+            gh-pages

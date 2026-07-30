@@ -29,6 +29,36 @@
   </head>
   <body>
     <div id="root"></div>
+
+    <!--
+      Shown only when the app never mounts — main.tsx removes it on start. The
+      case it exists for: GitHub Pages set to "Deploy from a branch → main",
+      which serves this file as-is, so the module below 404s and the page would
+      otherwise be silently, unhelpfully blank.
+    -->
+    <div
+      id="boot-fallback"
+      style="
+        max-width: 30rem;
+        margin: 18vh auto 0;
+        padding: 0 1.5rem;
+        font: 15px/1.6 ui-sans-serif, system-ui, sans-serif;
+        color: #4a4640;
+      "
+    >
+      <p style="font: 600 19px/1.3 ui-serif, Georgia, serif; color: #201e1b">
+        Qwertzy didn’t load.
+      </p>
+      <p style="margin-top: 0.75rem">
+        This page is serving the app’s source rather than a built copy, so there’s nothing to run.
+      </p>
+      <p style="margin-top: 0.75rem; color: #7a7264">
+        On GitHub Pages, set <strong>Settings → Pages → Source</strong> to
+        <strong>GitHub Actions</strong>, or to <strong>Deploy from a branch → gh-pages</strong>.
+        Serving <code>main</code> at root can’t work: that publishes the repository, not the site.
+      </p>
+    </div>
+
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
