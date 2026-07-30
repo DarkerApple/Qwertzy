@@ -104,6 +104,11 @@
   html {
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
+    /* Always reserve room for the scrollbar. Without this, moving from a page
+       that scrolls to one that doesn't takes the scrollbar away and everything
+       slides sideways by its width — which reads as the layout twitching every
+       time you navigate. No effect where scrollbars are overlaid anyway. */
+    scrollbar-gutter: stable;
   }
 
   @media (prefers-reduced-motion: reduce) {

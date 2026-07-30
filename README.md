@@ -20,10 +20,11 @@ Whatever you've written is saved when you look away, so nothing is ever lost mid
 Paste a bulleted list and each line becomes its own item, with leading bullets, numbers and `[ ]`
 boxes stripped, in the order you wrote them.
 
-**Ideas go deeper.** Tapping a note opens it on its own page, with whatever elaborates on it
-underneath. An elaboration is just a note — so it opens too, and you can keep going as far as the
-thought does. There's no separate "reply" kind of thing, and no chat box: you write on a note's page
-with the same line you write with anywhere else.
+**Ideas go deeper.** Tapping a note opens it over the page — the month stays visible behind — with
+whatever elaborates on it underneath. An elaboration is just a note, so it opens the same way in
+turn, as far down as the thought goes. No separate "reply" kind of thing and no chat box: you write
+in there with the same line you write with anywhere else. Escape, the ✕, or a click outside puts
+you back.
 
 **A month is one page.** Not cards in a feed and not a stack of small notes — one continuous sheet,
 headed by the month, its note count and a completion percentage. There are no day headings: every
@@ -267,7 +268,7 @@ src/
     MonthTabs.tsx      the navigation
     MonthNote.tsx      the month sheet: title, progress, the page itself
     NoteRow.tsx        one line of a page
-    NotePage.tsx       one note, and everything under it
+    NoteOverlay.tsx    one note and everything under it, over the page
     NoteText.tsx       note text with time(...) swapped for live clocks
     TimerChip.tsx      the clock: countdown, fill, play/pause/reset
     InlineComposer.tsx the live last line of the page

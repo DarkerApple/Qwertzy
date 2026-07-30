@@ -3,7 +3,7 @@ import type { Filter, Item } from '../types';
 import { useNotebook } from '../hooks/useNotebook';
 import { byMonth, countBelow, filterItems, inMonth, inWrittenOrder, monthSummaries, roots, startsNewDay } from '../lib/group';
 import type { MonthSummary } from '../lib/group';
-import { currentMonthKey, monthLabel } from '../lib/time';
+import { currentMonthKey, monthKey as monthKeyOf, monthLabel } from '../lib/time';
 import type { NotebookStorage } from '../lib/storage';
 import { exportJSON, parseImport } from '../lib/storage';
 import { describeDuration, hasTimer, withoutTimerTokens } from '../lib/timer';
@@ -20,7 +20,7 @@ import { UndoToast } from './UndoToast';
 import { Menu } from './Menu';
 import { MonthAside } from './MonthAside';
 import { QuartzBadge } from './QuartzMark';
-import { NotePage } from './NotePage';
+import { NoteOverlay } from './NoteOverlay';
 import { ChevronLeftIcon, ChevronRightIcon, LockIcon, SearchIcon, SlidersIcon } from './icons';
 
 const EMPTY_MONTH = (key: string): MonthSummary => ({ key, total: 0, done: 0, open: 0, threads: 0 });
@@ -137,6 +137,13 @@ export function Notebook({
   );
 
   const note = noteId ? items.find((item) => item.id === noteId) : undefined;
+
+  // Open a note and the page behind it should be the page it came from.
+  useEffect(() => {
+    if (!note) return;
+    const home = monthKeyOf(note.createdAt);
+    setActiveMonth((current) => (current === home ? current : home));
+  }, [note]);
 
   const running = useMemo(
     () => items.some((item) => item.timers.some((timer) => timer.state === 'running')),
@@ -458,37 +465,7 @@ export function Notebook({
       >
         <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_19rem] lg:items-start lg:gap-6">
           <div className="min-w-0">
-        {noteId && note ? (
-          <NotePage
-            ref={composerRef}
-            note={note}
-            ancestors={ancestorsOf(note.id)}
-            children={childrenOf(note.id)}
-            now={now}
-            countBelow={(id) => countBelow(items, id)}
-            onOpenNote={onOpenNote}
-            // Leaving a note is a navigation, not a state change — the URL has
-            // to move or the page stays exactly where it was.
-            onOpenMonth={() => onOpenNote('')}
-            onCapture={(text) => handleCapture(text, note.id)}
-            onToggle={toggle}
-            onEdit={edit}
-            onRemove={(id) => {
-              remove(id);
-              if (id === note.id) onOpenNote('');
-            }}
-            onToggleTimer={(id, timerId) => {
-              setNow(Date.now());
-              toggleTimer(id, timerId);
-            }}
-            onResetTimer={resetTimer}
-          />
-        ) : noteId ? (
-          <div className="surface hairline rounded-3xl border p-8 text-center shadow-sheet">
-            <p className="font-display text-[19px]">That note isn't here</p>
-            <p className="muted mt-2 text-[13px]">It may have been deleted.</p>
-          </div>
-        ) : searchMode ? (
+        {searchMode ? (
           <div className="space-y-4">
             <p className="muted px-1 text-[12px]">
               {resultCount} {resultCount === 1 ? 'match' : 'matches'} for “{trimmedQuery}”
@@ -566,6 +543,46 @@ export function Notebook({
           </p>
         )}
       </main>
+
+      {noteId && note && (
+        <NoteOverlay
+          ref={composerRef}
+          note={note}
+          onClose={() => onOpenNote('')}
+          ancestors={ancestorsOf(note.id)}
+          children={childrenOf(note.id)}
+          now={now}
+          countBelow={(id) => countBelow(items, id)}
+          onOpenNote={onOpenNote}
+          onOpenMonth={() => onOpenNote('')}
+          onCapture={(text) => handleCapture(text, note.id)}
+          onToggle={toggle}
+          onEdit={edit}
+          onRemove={(id) => {
+            remove(id);
+            if (id === note.id) onOpenNote('');
+          }}
+          onToggleTimer={(id, timerId) => {
+            setNow(Date.now());
+            toggleTimer(id, timerId);
+          }}
+          onResetTimer={resetTimer}
+        />
+      )}
+
+      {noteId && !note && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-6"
+          onClick={() => onOpenNote('')}
+          role="presentation"
+        >
+          <div aria-hidden="true" className="absolute inset-0 bg-black/30" />
+          <div className="surface hairline animate-sheet-up relative rounded-3xl border p-8 text-center shadow-lift">
+            <p className="font-display text-[19px]">That note isn't here</p>
+            <p className="muted mt-2 text-[13px]">It may have been deleted.</p>
+          </div>
+        </div>
+      )}
 
       <div
         className="pointer-events-none fixed inset-x-0 z-40 flex flex-col items-center gap-2 px-3"

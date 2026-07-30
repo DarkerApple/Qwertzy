@@ -1,7 +1,7 @@
-import { forwardRef } from 'react';
+import { forwardRef, useEffect } from 'react';
 import type { Item } from '../types';
 import { fullStamp, stamp } from '../lib/time';
-import { ChevronRightIcon } from './icons';
+import { ChevronRightIcon, CloseIcon } from './icons';
 import { NoteText } from './NoteText';
 import { NoteRow } from './NoteRow';
 import { InlineComposer } from './InlineComposer';
@@ -9,6 +9,7 @@ import { QuartzMark } from './QuartzMark';
 
 interface Props {
   note: Item;
+  onClose: () => void;
   ancestors: Item[];
   children: Item[];
   now: number;
@@ -24,16 +25,19 @@ interface Props {
 }
 
 /**
- * One note, on its own page, with whatever elaborates on it underneath.
+ * A note and whatever elaborates on it, laid over the month page rather than
+ * replacing it — so going a level deeper feels like opening something, not
+ * like leaving. The page stays visible behind, and Escape or a click outside
+ * puts you back on it.
  *
- * There is nothing special about an elaboration: it's a note, so it has its
- * own page too, and you can carry on down as far as the thought goes. The
- * writing line at the bottom is the same one as on a month page — writing is
- * writing wherever you are.
+ * There's nothing special about an elaboration: it's a note, so it opens the
+ * same way in turn, as far down as the thought goes. The writing line is the
+ * one from the month page, because writing is writing wherever you are.
  */
-export const NotePage = forwardRef<HTMLTextAreaElement, Props>(function NotePage(
+export const NoteOverlay = forwardRef<HTMLTextAreaElement, Props>(function NoteOverlay(
   {
     note,
+    onClose,
     ancestors,
     children,
     now,
@@ -49,11 +53,38 @@ export const NotePage = forwardRef<HTMLTextAreaElement, Props>(function NotePage
   },
   composerRef,
 ) {
+  // While it's open the page behind shouldn't scroll under it, and Escape
+  // should close it wherever focus happens to be.
+  useEffect(() => {
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') onClose();
+    }
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = previous;
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [onClose]);
+
   return (
-    <article className="surface hairline group relative overflow-hidden rounded-3xl border shadow-sheet">
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-6"
+      onClick={onClose}
+      role="presentation"
+    >
+      <div aria-hidden="true" className="animate-fade-in absolute inset-0 bg-black/30 backdrop-blur-[2px]" />
+      <article
+        role="dialog"
+        aria-modal="true"
+        aria-label={note.text}
+        onClick={(e) => e.stopPropagation()}
+        className="surface hairline animate-sheet-up group relative flex max-h-[86dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-3xl border shadow-lift sm:rounded-3xl"
+      >
       <QuartzMark className="pointer-events-none absolute -right-6 -top-8 hidden h-32 w-32 rotate-6 text-accent-500/[0.05] transition-transform duration-700 group-hover:rotate-0 sm:block" />
 
-      <header className="hairline relative border-b px-4 py-5 sm:px-6 sm:py-6">
+      <header className="hairline relative shrink-0 border-b px-4 py-4 sm:px-6 sm:py-5">
         {/* Where this sits in the thought, and the way back up it. */}
         <nav className="muted flex flex-wrap items-center gap-1 text-[11px]">
           <button
@@ -121,17 +152,27 @@ export const NotePage = forwardRef<HTMLTextAreaElement, Props>(function NotePage
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={() => onRemove(note.id)}
-            className="hairline muted shrink-0 rounded-full border px-3 py-1.5 text-[12px] transition hover:border-red-400 hover:text-red-600 dark:hover:text-red-400"
-          >
-            Delete
-          </button>
+          <div className="flex shrink-0 items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => onRemove(note.id)}
+              className="hairline muted rounded-full border px-3 py-1.5 text-[12px] transition hover:border-red-400 hover:text-red-600 dark:hover:text-red-400"
+            >
+              Delete
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close"
+              className="muted flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-black/5 dark:hover:bg-white/10"
+            >
+              <CloseIcon />
+            </button>
+          </div>
         </div>
       </header>
 
-      <div className="px-1 py-3 sm:px-2">
+      <div className="min-h-0 flex-1 overflow-y-auto px-1 py-3 sm:px-2">
         {children.length === 0 && (
           <p className="muted px-4 py-6 text-center text-[13px] leading-relaxed sm:px-6">
             Nothing under this yet. Write below to take the idea further — and each of those can be
@@ -158,6 +199,7 @@ export const NotePage = forwardRef<HTMLTextAreaElement, Props>(function NotePage
 
         <InlineComposer ref={composerRef} onCapture={onCapture} placeholder="Take it further…" />
       </div>
-    </article>
+      </article>
+    </div>
   );
 });
