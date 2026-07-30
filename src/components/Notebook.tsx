@@ -19,7 +19,7 @@ import { EmptyState } from './EmptyState';
 import { UndoToast } from './UndoToast';
 import { Menu } from './Menu';
 import { MonthAside } from './MonthAside';
-import { ChevronLeftIcon, ChevronRightIcon, HomeIcon, LockIcon, SearchIcon, SlidersIcon } from './icons';
+import { ChartIcon, ChevronLeftIcon, ChevronRightIcon, HomeIcon, LockIcon, SearchIcon, SlidersIcon } from './icons';
 
 const EMPTY_MONTH = (key: string): MonthSummary => ({ key, total: 0, done: 0, open: 0, threads: 0 });
 
@@ -33,12 +33,13 @@ interface Props {
   secret?: boolean;
   onLock?: () => void;
   onOpenSettings: () => void;
+  onOpenVisualize: (month: string) => void;
   /** Runs what was written through any enabled plugins first. */
   applyCapture?: (text: string) => Promise<string[]>;
   /** Notes handed over from elsewhere — a plugin command, say. */
   incoming?: string[];
   onIncomingHandled?: () => void;
-  themeToggle: React.ReactNode;
+  chrome: React.ReactNode;
 }
 
 /**
@@ -55,10 +56,11 @@ export function Notebook({
   secret = false,
   onLock,
   onOpenSettings,
+  onOpenVisualize,
   applyCapture,
   incoming,
   onIncomingHandled,
-  themeToggle,
+  chrome,
 }: Props) {
   const {
     items,
@@ -402,7 +404,16 @@ export function Notebook({
                 Lock
               </button>
             )}
-            {themeToggle}
+            {chrome}
+            <button
+              type="button"
+              onClick={() => onOpenVisualize(activeMonth)}
+              aria-label="Visualise this month"
+              title="Visualise this month"
+              className="muted flex h-9 w-9 items-center justify-center rounded-xl transition duration-200 hover:text-[rgb(var(--text))]"
+            >
+              <ChartIcon />
+            </button>
             <button
               type="button"
               onClick={onOpenSettings}

@@ -9,14 +9,14 @@ interface Props {
   onOpen: (vault: OpenVault) => void;
   onBack: () => void;
   onReset: () => void;
-  themeToggle: ReactNode;
+  chrome: ReactNode;
 }
 
 /**
  * The door to the secret notebook: set a password the first time, enter it
  * after that. Deriving the key is deliberately slow, so the button says so.
  */
-export function VaultGate({ exists, onOpen, onBack, onReset, themeToggle }: Props) {
+export function VaultGate({ exists, onOpen, onBack, onReset, chrome }: Props) {
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [busy, setBusy] = useState(false);
@@ -101,7 +101,7 @@ export function VaultGate({ exists, onOpen, onBack, onReset, themeToggle }: Prop
             <ChevronLeftIcon className="h-[18px] w-[18px]" />
             <span className="text-[13px] font-medium">Back</span>
           </button>
-          <div className="ml-auto">{themeToggle}</div>
+          <div className="ml-auto">{chrome}</div>
         </div>
       </header>
 

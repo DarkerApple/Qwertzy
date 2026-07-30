@@ -1,23 +1,27 @@
 import type { Settings as SettingsValues } from '../lib/settings';
 import { ACCENTS } from '../lib/settings';
-import { ChevronLeftIcon, ChevronRightIcon, PuzzleIcon } from './icons';
+import { AlarmIcon, ChevronLeftIcon, ChevronRightIcon, PuzzleIcon } from './icons';
 
 interface Props {
   settings: SettingsValues;
   onChange: <K extends keyof SettingsValues>(key: K, value: SettingsValues[K]) => void;
   pluginCount: number;
+  alarmCount: number;
   onOpenPlugins: () => void;
+  onOpenAlarms: () => void;
   onBack: () => void;
-  themeToggle: React.ReactNode;
+  chrome: React.ReactNode;
 }
 
 export function Settings({
   settings,
   onChange,
   pluginCount,
+  alarmCount,
   onOpenPlugins,
+  onOpenAlarms,
   onBack,
-  themeToggle,
+  chrome,
 }: Props) {
   return (
     <div className="page">
@@ -34,7 +38,7 @@ export function Settings({
             <ChevronLeftIcon className="h-[18px] w-[18px]" />
             <span className="text-[13px] font-medium">Back</span>
           </button>
-          <div className="ml-auto">{themeToggle}</div>
+          <div className="ml-auto">{chrome}</div>
         </div>
       </header>
 
@@ -125,6 +129,23 @@ export function Settings({
               {pluginCount === 0
                 ? 'None installed — write one, or add a community one'
                 : `${pluginCount} installed`}
+            </span>
+          </span>
+          <ChevronRightIcon className="muted h-4 w-4 shrink-0 transition group-hover:translate-x-0.5" />
+        </button>
+
+        <button
+          type="button"
+          onClick={onOpenAlarms}
+          className="surface hairline group mt-2.5 flex w-full items-center gap-3 rounded-2xl border p-4 text-left transition duration-200 hover:-translate-y-0.5 hover:border-amber-300 hover:shadow-sm dark:hover:border-amber-700/60"
+        >
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-300">
+            <AlarmIcon className="h-[18px] w-[18px]" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[14px] font-medium">Alarms</span>
+            <span className="muted block text-[12px]">
+              {alarmCount === 0 ? 'None set — ring at a time of day' : `${alarmCount} on`}
             </span>
           </span>
           <ChevronRightIcon className="muted h-4 w-4 shrink-0 transition group-hover:translate-x-0.5" />

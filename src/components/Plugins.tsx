@@ -12,7 +12,7 @@ interface Props {
   onRunCommand: (pluginId: string, commandId: string) => Promise<string[]>;
   onAddNotes: (notes: string[]) => void;
   onBack: () => void;
-  themeToggle: React.ReactNode;
+  chrome: React.ReactNode;
 }
 
 export function Plugins({
@@ -24,7 +24,7 @@ export function Plugins({
   onRunCommand,
   onAddNotes,
   onBack,
-  themeToggle,
+  chrome,
 }: Props) {
   const [showGuide, setShowGuide] = useState(false);
   const [adding, setAdding] = useState(false);
@@ -83,7 +83,7 @@ export function Plugins({
             <ChevronLeftIcon className="h-[18px] w-[18px]" />
             <span className="text-[13px] font-medium">Back</span>
           </button>
-          <div className="ml-auto">{themeToggle}</div>
+          <div className="ml-auto">{chrome}</div>
         </div>
       </header>
 

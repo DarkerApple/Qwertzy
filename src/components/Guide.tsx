@@ -4,11 +4,11 @@ import { ChevronLeftIcon } from './icons';
 interface Props {
   onBack: () => void;
   onStart: () => void;
-  themeToggle: ReactNode;
+  chrome: ReactNode;
 }
 
 /** How the app works, written as the page it describes. */
-export function Guide({ onBack, onStart, themeToggle }: Props) {
+export function Guide({ onBack, onStart, chrome }: Props) {
   return (
     <div className="page">
       <header
@@ -24,7 +24,7 @@ export function Guide({ onBack, onStart, themeToggle }: Props) {
             <ChevronLeftIcon className="h-[18px] w-[18px]" />
             <span className="text-[13px] font-medium">Back</span>
           </button>
-          <div className="ml-auto">{themeToggle}</div>
+          <div className="ml-auto">{chrome}</div>
         </div>
       </header>
 

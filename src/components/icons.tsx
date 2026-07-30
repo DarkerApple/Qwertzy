@@ -148,6 +148,34 @@ export const SlidersIcon = (p: Props) => (
   </Svg>
 );
 
+export const StopwatchIcon = (p: Props) => (
+  <Svg {...p}>
+    <circle cx="12" cy="13.5" r="7.5" />
+    <path d="M12 9.5v4l2.5 1.5M9.5 2.5h5M12 2.5V6M18.5 7l1.5-1.5" />
+  </Svg>
+);
+
+export const AlarmIcon = (p: Props) => (
+  <Svg {...p}>
+    <circle cx="12" cy="13.5" r="7.5" />
+    <path d="M12 9.5v4l2.5 1.5" />
+    <path d="M4.5 6.5 7 4M19.5 6.5 17 4" />
+  </Svg>
+);
+
+export const ChartIcon = (p: Props) => (
+  <Svg {...p}>
+    <path d="M4 4v16h16" />
+    <path d="M7.5 15.5c2-6 3.5-8 5-8s2.5 3 4.5 5.5" />
+  </Svg>
+);
+
+export const CommandIcon = (p: Props) => (
+  <Svg {...p}>
+    <path d="M8.5 6.5a2 2 0 10-2 2h11a2 2 0 10-2-2v11a2 2 0 102-2h-11a2 2 0 10-2 2z" />
+  </Svg>
+);
+
 export const ChevronLeftIcon = (p: Props) => (
   <Svg {...p}>
     <path d="M15 5l-7 7 7 7" />

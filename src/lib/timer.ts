@@ -71,6 +71,73 @@ export function findTimerTokens(text: string): TimerToken[] {
   return tokens;
 }
 
+/**
+ * `graph(x^2)` or `graph(sin(x), -6, 6)` — the plotting twin of time(). Kept
+ * here so both tokens are scanned the same way.
+ */
+export interface GraphToken {
+  raw: string;
+  start: number;
+  end: number;
+  expression: string;
+  from: number;
+  to: number;
+}
+
+const GRAPH = /\bgraph\(([^)\n]*(?:\([^)\n]*\)[^)\n]*)*)\)/gi;
+
+export function findGraphTokens(text: string): GraphToken[] {
+  const tokens: GraphToken[] = [];
+  GRAPH.lastIndex = 0;
+  let match: RegExpExecArray | null;
+  while ((match = GRAPH.exec(text))) {
+    // Split on the last two commas only, so "graph(max(x,0), -5, 5)" works.
+    const inner = match[1].trim();
+    if (!inner) continue;
+    const parts = splitRange(inner);
+    tokens.push({
+      raw: match[0],
+      start: match.index,
+      end: match.index + match[0].length,
+      expression: parts.expression,
+      from: parts.from,
+      to: parts.to,
+    });
+  }
+  return tokens;
+}
+
+function splitRange(inner: string): { expression: string; from: number; to: number } {
+  const pieces = splitTopLevel(inner);
+  if (pieces.length >= 3) {
+    const from = Number(pieces[pieces.length - 2]);
+    const to = Number(pieces[pieces.length - 1]);
+    if (Number.isFinite(from) && Number.isFinite(to) && from < to) {
+      return { expression: pieces.slice(0, -2).join(','), from, to };
+    }
+  }
+  return { expression: inner, from: -10, to: 10 };
+}
+
+/** Split on commas that aren't inside brackets. */
+function splitTopLevel(input: string): string[] {
+  const out: string[] = [];
+  let depth = 0;
+  let current = '';
+  for (const char of input) {
+    if (char === '(') depth += 1;
+    if (char === ')') depth -= 1;
+    if (char === ',' && depth === 0) {
+      out.push(current.trim());
+      current = '';
+      continue;
+    }
+    current += char;
+  }
+  out.push(current.trim());
+  return out;
+}
+
 export function hasTimer(text: string): boolean {
   return findTimerTokens(text).length > 0;
 }
@@ -80,7 +147,9 @@ export function hasTimer(text: string): boolean {
  * a toast should say, since neither can render a clock.
  */
 export function withoutTimerTokens(text: string): string {
-  const tokens = findTimerTokens(text);
+  const tokens = [...findTimerTokens(text), ...findGraphTokens(text)].sort(
+    (a, b) => a.start - b.start,
+  );
   if (tokens.length === 0) return text;
   let out = '';
   let cursor = 0;

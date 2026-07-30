@@ -1,7 +1,8 @@
 import { Fragment } from 'react';
 import type { Item } from '../types';
-import { findTimerTokens } from '../lib/timer';
+import { findGraphTokens, findTimerTokens } from '../lib/timer';
 import { TimerChip } from './TimerChip';
+import { Plot } from './Plot';
 
 interface Props {
   item: Item;
@@ -17,32 +18,45 @@ interface Props {
  * written as.
  */
 export function NoteText({ item, now, onToggleTimer, onResetTimer, className }: Props) {
-  const tokens = findTimerTokens(item.text);
-  if (tokens.length === 0 || item.timers.length === 0) {
+  const timerTokens = findTimerTokens(item.text);
+  const graphTokens = findGraphTokens(item.text);
+  if (timerTokens.length === 0 && graphTokens.length === 0) {
     return <span className={className}>{item.text}</span>;
   }
+
+  // Both kinds of token live in one stream, ordered by where they appear.
+  const marks = [
+    ...timerTokens.map((token, i) => ({ ...token, kind: 'timer' as const, index: i })),
+    ...graphTokens.map((token) => ({ ...token, kind: 'graph' as const, index: -1 })),
+  ].sort((a, b) => a.start - b.start);
 
   const parts: React.ReactNode[] = [];
   let cursor = 0;
 
-  tokens.forEach((token, i) => {
-    const timer = item.timers[i];
-    if (token.start > cursor) parts.push(item.text.slice(cursor, token.start));
-    // A token with no matching timer (mid-edit, say) stays as plain text.
-    parts.push(
-      timer ? (
-        <TimerChip
-          key={timer.id}
-          timer={timer}
-          now={now}
-          onToggle={() => onToggleTimer(timer.id)}
-          onReset={() => onResetTimer(timer.id)}
-        />
-      ) : (
-        token.raw
-      ),
-    );
-    cursor = token.end;
+  marks.forEach((mark) => {
+    if (mark.start > cursor) parts.push(item.text.slice(cursor, mark.start));
+    if (mark.kind === 'graph') {
+      parts.push(
+        <Plot key={`g${mark.start}`} expression={mark.expression} from={mark.from} to={mark.to} inline />,
+      );
+    } else {
+      const timer = item.timers[mark.index];
+      // A token with no matching timer (mid-edit, say) stays as plain text.
+      parts.push(
+        timer ? (
+          <TimerChip
+            key={timer.id}
+            timer={timer}
+            now={now}
+            onToggle={() => onToggleTimer(timer.id)}
+            onReset={() => onResetTimer(timer.id)}
+          />
+        ) : (
+          mark.raw
+        ),
+      );
+    }
+    cursor = mark.end;
   });
   if (cursor < item.text.length) parts.push(item.text.slice(cursor));
 

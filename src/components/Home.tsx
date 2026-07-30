@@ -3,7 +3,7 @@ import type { Item } from '../types';
 import { monthSummaries } from '../lib/group';
 import type { MonthSummary } from '../lib/group';
 import { currentMonthKey, monthLabel } from '../lib/time';
-import { BookIcon, ChevronRightIcon, LockIcon, SlidersIcon, SparkIcon, UnlockIcon } from './icons';
+import { AlarmIcon, BookIcon, ChartIcon, ChevronRightIcon, LockIcon, SlidersIcon, SparkIcon, UnlockIcon } from './icons';
 import { QuartzBadge, QuartzMark } from './QuartzMark';
 
 interface Props {
@@ -14,7 +14,10 @@ interface Props {
   onOpenGuide: () => void;
   onOpenSecret: () => void;
   onOpenSettings: () => void;
-  themeToggle: React.ReactNode;
+  onOpenVisualize: () => void;
+  onOpenAlarms: () => void;
+  alarmCount: number;
+  chrome: React.ReactNode;
 }
 
 const MONTH_NAMES = Array.from({ length: 12 }, (_, i) =>
@@ -33,7 +36,10 @@ export function Home({
   onOpenGuide,
   onOpenSecret,
   onOpenSettings,
-  themeToggle,
+  onOpenVisualize,
+  onOpenAlarms,
+  alarmCount,
+  chrome,
 }: Props) {
   const thisMonth = currentMonthKey();
   const summaries = useMemo(() => monthSummaries(items), [items]);
@@ -59,7 +65,7 @@ export function Home({
           <QuartzBadge />
           <span className="text-[15px] font-semibold tracking-tight">Qwertzy</span>
           <div className="ml-auto flex items-center gap-0.5">
-            {themeToggle}
+            {chrome}
             <button
               type="button"
               onClick={onOpenSettings}
@@ -179,6 +185,20 @@ export function Home({
             tone="amber"
             title="Secret notes"
             subtitle={vaultOpen ? 'Unlocked — open it' : vaultExists ? 'Locked' : 'Set a password'}
+          />
+          <ShelfCard
+            onClick={onOpenVisualize}
+            icon={<ChartIcon className="h-[18px] w-[18px]" />}
+            tone="accent"
+            title="Visualise"
+            subtitle="The month as a tree, and graphs"
+          />
+          <ShelfCard
+            onClick={onOpenAlarms}
+            icon={<AlarmIcon className="h-[18px] w-[18px]" />}
+            tone="amber"
+            title="Alarms"
+            subtitle={alarmCount === 0 ? 'Ring at a time of day' : `${alarmCount} set`}
           />
           <ShelfCard
             onClick={onOpenSettings}

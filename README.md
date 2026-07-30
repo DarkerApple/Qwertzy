@@ -56,6 +56,7 @@ entry rather than stacking one per month.
 | Finish a note | `Enter` twice, `Ctrl`/`⌘`+`Enter`, or just look away |
 | Start a timer | Write `time(10m)` in the note |
 | Close a thread or search | `Esc` |
+| Go anywhere | `⌘K` / `Ctrl+K` |
 
 Writing always belongs to today, so older months are read-only pages with a `Write on July 2026's
 page →` link at the bottom; `N` from anywhere takes you to the same place.
@@ -93,6 +94,40 @@ than restarting.
 Timers store an absolute end time, so a running one survives a reload and keeps the right time. They
 only ring while the page is open, though: this app has no background worker, and a timer that
 expired while the tab was closed is shown as finished rather than announced hours late.
+
+## Graphs
+
+`graph(x^2)` written into a note becomes a small plot, right where you typed it — the same idea as
+`time(...)`. Give it a range with `graph(sin(x), -6, 6)`.
+
+The **Visualise** page (the chart icon, or ⌘K → Visualise) has a bigger plotter for sketching a
+function while you work something out, next to **the month as a tree**: notes down the spine, their
+threads beneath them, and anything split out of a thread hanging off the note it came from.
+
+Expressions are parsed rather than `eval`'d — shunting-yard to RPN, then a stack machine — so
+anything that isn't a function of x is rejected with a reason instead of quietly doing something
+else. It understands `+ − × ÷ % ^`, brackets, unary minus, implicit multiplication (`2x`, `3(x+1)`),
+`pi`/`e`/`tau`, and sin cos tan asin acos atan sinh cosh tanh sqrt cbrt abs ln log log2 exp floor
+ceil round sign min max pow mod. Undefined stretches (`1/x` at zero) break the line rather than
+drawing a spike through the asymptote.
+
+## Alarms
+
+Separate from the timers you write into notes: **Alarms** ring at a time of day, once or on repeat
+(daily, weekdays, or a chosen weekday). Same honest limit as everything else here — they ring while
+Qwertzy is open in a tab, since there's no background worker. One that came due while it was closed
+is skipped rather than rung hours late, and a repeating alarm moves on to its next occurrence.
+
+## The pinned timer
+
+The stopwatch in the header is a timer that isn't attached to any note — for whatever you're doing
+right now. Pick a preset or type minutes; it keeps running as you move around the app and across a
+reload, and it can always be reset or removed.
+
+## Getting around
+
+⌘K / Ctrl+K (or the ⌘ button in any header) opens **Go to**: every page and every month you've
+written in, in one list. Type, arrow, Enter.
 
 ## Using a line
 
@@ -214,6 +249,8 @@ src/
   lib/vault.ts         PBKDF2 + AES-GCM behind the same storage interface
   lib/settings.ts      the settings themselves, and applying them
   lib/plugins.ts       the worker sandbox and its message protocol
+  lib/expr.ts          the expression parser and evaluator (no eval)
+  lib/alarms.ts        time-of-day alarms and when they next ring
   lib/parse.ts         what you wrote -> notes (blank line splits, lists split)
   lib/group.ts         month summaries, page order, filtering, search
   lib/time.ts          month/day keys and the short margin stamps
@@ -225,6 +262,11 @@ src/
     Guide.tsx          how it works, in four steps
     Settings.tsx       theme, accent, motion, sound
     Plugins.tsx        install, enable, run — with ? for the guide
+    Alarms.tsx         set, repeat, enable
+    Visualize.tsx      the month as a tree, and the plotter
+    Plot.tsx           a function of x, drawn
+    CommandPalette.tsx go anywhere, ⌘K
+    PinnedTimerWidget  the header timer
     PluginGuide.tsx    how to write one
     Notebook.tsx       a whole notebook — used for both the everyday and secret one
     VaultGate.tsx      set a password, or enter it
