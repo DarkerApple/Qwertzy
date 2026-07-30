@@ -300,10 +300,10 @@ export function Notebook({
   const isEmptyEverywhere = items.length === 0;
 
   return (
-    <div className="min-h-dvh">
+    <div className="page">
       <header
-        className="sticky top-0 z-30"
-        style={{ height: 'var(--header-h)', backgroundColor: 'rgb(var(--paper))' }}
+        className="sticky top-0 z-30 backdrop-blur-md"
+        style={{ height: 'var(--header-h)', backgroundColor: 'rgb(var(--paper) / 0.82)' }}
       >
         <div className="mx-auto flex h-full max-w-2xl items-center gap-1 px-3 sm:px-4">
           <button
@@ -407,7 +407,7 @@ export function Notebook({
       <main
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
-        className="mx-auto max-w-2xl px-3 pb-16 pt-4 sm:px-4 sm:pt-6"
+        className="mx-auto w-full max-w-2xl px-4 pb-14 pt-5 sm:px-5 sm:pt-6"
       >
         {searchMode ? (
           <div className="space-y-4">
@@ -415,12 +415,12 @@ export function Notebook({
               {resultCount} {resultCount === 1 ? 'match' : 'matches'} for “{trimmedQuery}”
             </p>
             {results.length === 0 ? (
-              <div className="surface hairline rounded-2xl border shadow-sheet">
+              <div className="surface hairline rounded-3xl border shadow-sheet">
                 <EmptyState kind="search" />
               </div>
             ) : (
               results.map((group) => (
-                <section key={group.key} className="surface hairline overflow-hidden rounded-2xl border shadow-sheet">
+                <section key={group.key} className="surface hairline overflow-hidden rounded-3xl border shadow-sheet">
                   <h2 className="hairline border-b px-4 py-3 font-display text-[19px] sm:px-6">
                     {monthLabel(group.key)}
                   </h2>

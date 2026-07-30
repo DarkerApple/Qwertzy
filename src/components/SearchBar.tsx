@@ -18,10 +18,10 @@ export const SearchBar = forwardRef<HTMLInputElement, Props>(function SearchBar(
 ) {
   return (
     <div
-      className="sticky z-20 border-b"
+      className="sticky z-20 border-b backdrop-blur-md"
       style={{
         top: 'var(--header-h)',
-        backgroundColor: 'rgb(var(--paper))',
+        backgroundColor: 'rgb(var(--paper) / 0.82)',
         borderColor: 'rgb(var(--line))',
       }}
     >

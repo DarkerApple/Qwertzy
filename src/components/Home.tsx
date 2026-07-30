@@ -4,7 +4,7 @@ import { monthSummaries } from '../lib/group';
 import type { MonthSummary } from '../lib/group';
 import { currentMonthKey, monthLabel } from '../lib/time';
 import { BookIcon, ChevronRightIcon, LockIcon, SparkIcon, UnlockIcon } from './icons';
-import { QuartzBadge } from './QuartzMark';
+import { QuartzBadge, QuartzMark } from './QuartzMark';
 
 interface Props {
   items: Item[];
@@ -44,54 +44,74 @@ export function Home({
   }, [summaries]);
 
   const open = items.filter((i) => !i.done).length;
-  const thisMonthSummary = byKey.get(thisMonth);
+  const here = byKey.get(thisMonth);
+  const pct = here?.total ? Math.round((here.done / here.total) * 100) : 0;
 
   return (
-    <div className="min-h-dvh">
+    <div className="page">
       <header
-        className="sticky top-0 z-30"
-        style={{ height: 'var(--header-h)', backgroundColor: 'rgb(var(--paper))' }}
+        className="sticky top-0 z-30 backdrop-blur-md"
+        style={{ height: 'var(--header-h)', backgroundColor: 'rgb(var(--paper) / 0.82)' }}
       >
-        <div className="mx-auto flex h-full max-w-2xl items-center gap-2 px-3 sm:px-4">
+        <div className="mx-auto flex h-full max-w-2xl items-center gap-2 px-4 sm:px-5">
           <QuartzBadge />
           <span className="text-[15px] font-semibold tracking-tight">Qwertzy</span>
           <div className="ml-auto">{themeToggle}</div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-2xl px-3 pb-20 pt-2 sm:px-4">
-        <h1 className="font-display text-[32px] leading-tight tracking-tight sm:text-[38px]">
+      <main className="mx-auto w-full max-w-2xl px-4 pb-14 pt-4 sm:px-5">
+        <h1 className="font-display text-[34px] leading-[1.05] tracking-tight sm:text-[42px]">
           Your notebooks
         </h1>
-        <p className="muted mt-1 text-[13px]">
+        <p className="muted mt-2 text-[13px]">
           {items.length === 0
             ? 'Nothing written yet — start on this month’s page.'
             : `${items.length} ${items.length === 1 ? 'note' : 'notes'} · ${open} still to do`}
         </p>
 
-        {/* The one you almost always want. */}
+        {/* The one you almost always want, given the weight to match. */}
         <button
           type="button"
           onClick={() => onOpenMonth(thisMonth)}
-          className="surface hairline group mt-5 flex w-full items-center gap-4 rounded-2xl border p-4 text-left shadow-sheet transition hover:border-accent-300 dark:hover:border-accent-700"
+          className="surface hairline group relative mt-6 flex w-full items-center gap-4 overflow-hidden rounded-3xl border p-5 text-left shadow-sheet transition duration-200 hover:-translate-y-0.5 hover:border-accent-300 hover:shadow-lift dark:hover:border-accent-700"
         >
-          <div className="min-w-0 flex-1">
-            <p className="muted text-[11px] font-medium uppercase tracking-[0.14em]">
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 bg-gradient-to-br from-accent-500/[0.07] via-transparent to-transparent"
+          />
+          {/* The mark, oversized and barely there. Centred on the right edge so
+              what shows still reads as a crystal rather than a stray polygon. */}
+          <QuartzMark className="pointer-events-none absolute -right-7 top-1/2 hidden h-40 w-40 -translate-y-1/2 text-accent-500/[0.05] transition-transform duration-500 group-hover:scale-105 sm:block" />
+
+          <div className="relative min-w-0 flex-1">
+            <p className="muted text-[10px] font-semibold uppercase tracking-[0.18em]">
               This month
             </p>
-            <p className="font-display mt-0.5 text-[24px] leading-none">{monthLabel(thisMonth)}</p>
-            <p className="muted mt-1.5 text-[12px]">
-              {thisMonthSummary
-                ? `${thisMonthSummary.total} ${thisMonthSummary.total === 1 ? 'note' : 'notes'} · ${thisMonthSummary.open} to do`
+            <p className="font-display mt-1 text-[27px] leading-none">{monthLabel(thisMonth)}</p>
+            <p className="muted mt-2 text-[12px]">
+              {here
+                ? `${here.total} ${here.total === 1 ? 'note' : 'notes'} · ${here.open} to do`
                 : 'A blank page — write something'}
             </p>
+            {here && here.total > 0 && (
+              <span className="mt-3 block h-[3px] w-32 overflow-hidden rounded-full bg-ink-200 dark:bg-ink-800">
+                <span
+                  className="block h-full rounded-full bg-accent-500 transition-[width] duration-500"
+                  style={{ width: `${pct}%` }}
+                />
+              </span>
+            )}
           </div>
-          <ChevronRightIcon className="muted h-5 w-5 transition group-hover:translate-x-0.5" />
+          <ChevronRightIcon className="muted relative h-5 w-5 shrink-0 transition group-hover:translate-x-0.5 group-hover:text-accent-600 dark:group-hover:text-accent-300" />
         </button>
 
         {years.map((year) => (
-          <section key={year} className="mt-8">
-            <h2 className="font-display mb-2 text-[20px] tracking-tight">{year}</h2>
+          <section key={year} className="mt-9">
+            <div className="mb-3 flex items-center gap-3">
+              <h2 className="font-display text-[19px] leading-none tracking-tight">{year}</h2>
+              <span aria-hidden="true" className="hairline h-px flex-1 border-t" />
+            </div>
             <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">
               {MONTH_NAMES.map((name, i) => {
                 const key = `${year}-${String(i + 1).padStart(2, '0')}`;
@@ -110,50 +130,75 @@ export function Home({
           </section>
         ))}
 
-        <div className="mt-8 grid gap-2 sm:grid-cols-2">
-          <button
-            type="button"
+        <div className="mt-9 grid gap-2.5 sm:grid-cols-2">
+          <ShelfCard
             onClick={onOpenGuide}
-            className="surface hairline group flex items-center gap-3 rounded-2xl border p-4 text-left transition hover:border-accent-300 dark:hover:border-accent-700"
-          >
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent-500/10 text-accent-700 dark:text-accent-300">
-              <BookIcon className="h-[18px] w-[18px]" />
-            </span>
-            <span className="min-w-0">
-              <span className="block text-[14px] font-medium">How Qwertzy works</span>
-              <span className="muted block truncate text-[12px]">
-                Writing, timers, threads, months
-              </span>
-            </span>
-          </button>
-
-          <button
-            type="button"
+            icon={<BookIcon className="h-[18px] w-[18px]" />}
+            tone="accent"
+            title="How Qwertzy works"
+            subtitle="Writing, timers, threads, months"
+          />
+          <ShelfCard
             onClick={onOpenSecret}
-            className="surface hairline group flex items-center gap-3 rounded-2xl border p-4 text-left transition hover:border-amber-300 dark:hover:border-amber-700/60"
-          >
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-300">
-              {vaultOpen ? (
+            icon={
+              vaultOpen ? (
                 <UnlockIcon className="h-[18px] w-[18px]" />
               ) : (
                 <LockIcon className="h-[18px] w-[18px]" />
-              )}
-            </span>
-            <span className="min-w-0">
-              <span className="block text-[14px] font-medium">Secret notes</span>
-              <span className="muted block truncate text-[12px]">
-                {vaultOpen ? 'Unlocked — open it' : vaultExists ? 'Locked' : 'Set a password'}
-              </span>
-            </span>
-          </button>
+              )
+            }
+            tone="amber"
+            title="Secret notes"
+            subtitle={vaultOpen ? 'Unlocked — open it' : vaultExists ? 'Locked' : 'Set a password'}
+          />
         </div>
 
-        <p className="muted mt-8 flex items-center justify-center gap-1.5 text-center text-[11px]">
+        <p className="muted mt-9 flex items-center justify-center gap-1.5 text-center text-[11px]">
           <SparkIcon className="h-3.5 w-3.5" />
           Everything is stored in this browser only
         </p>
       </main>
     </div>
+  );
+}
+
+function ShelfCard({
+  onClick,
+  icon,
+  tone,
+  title,
+  subtitle,
+}: {
+  onClick: () => void;
+  icon: React.ReactNode;
+  tone: 'accent' | 'amber';
+  title: string;
+  subtitle: string;
+}) {
+  const hover =
+    tone === 'accent'
+      ? 'hover:border-accent-300 dark:hover:border-accent-700'
+      : 'hover:border-amber-300 dark:hover:border-amber-700/60';
+  const chip =
+    tone === 'accent'
+      ? 'bg-accent-500/10 text-accent-700 dark:text-accent-300'
+      : 'bg-amber-500/15 text-amber-700 dark:text-amber-300';
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`surface hairline group flex items-center gap-3 rounded-2xl border p-4 text-left transition duration-200 hover:-translate-y-0.5 hover:shadow-sm ${hover}`}
+    >
+      <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${chip}`}>
+        {icon}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-[14px] font-medium">{title}</span>
+        <span className="muted block truncate text-[12px]">{subtitle}</span>
+      </span>
+      <ChevronRightIcon className="muted h-4 w-4 shrink-0 opacity-0 transition group-hover:translate-x-0.5 group-hover:opacity-100" />
+    </button>
   );
 }
 
@@ -178,8 +223,8 @@ function MonthCard({
   if (total === 0 && !isCurrent) {
     return (
       <div
-        className={`hairline muted rounded-xl border border-dashed px-3 py-2.5 ${
-          isFuture ? 'opacity-35' : 'opacity-55'
+        className={`hairline muted rounded-2xl border border-dashed px-3 py-3 ${
+          isFuture ? 'opacity-30' : 'opacity-50'
         }`}
       >
         <span className="text-[13px] font-medium">{name}</span>
@@ -192,9 +237,9 @@ function MonthCard({
       type="button"
       onClick={onOpen}
       aria-label={`${name} — ${total} ${total === 1 ? 'note' : 'notes'}`}
-      className={`surface rounded-xl border px-3 py-2.5 text-left transition hover:-translate-y-px hover:shadow-sm ${
+      className={`surface rounded-2xl border px-3 py-3 text-left transition duration-200 hover:-translate-y-0.5 hover:shadow-sm ${
         isCurrent
-          ? 'border-accent-400 dark:border-accent-600'
+          ? 'border-accent-400 ring-1 ring-accent-400/40 dark:border-accent-600 dark:ring-accent-600/40'
           : 'hairline hover:border-accent-300 dark:hover:border-accent-700'
       }`}
     >
@@ -202,7 +247,7 @@ function MonthCard({
         <span className="text-[13px] font-medium">{name}</span>
         {total > 0 && <span className="muted text-[11px] tabular-nums">{total}</span>}
       </span>
-      <span className="mt-1.5 block h-1 overflow-hidden rounded-full bg-ink-200 dark:bg-ink-800">
+      <span className="mt-2 block h-[3px] overflow-hidden rounded-full bg-ink-200 dark:bg-ink-800">
         <span
           className="block h-full rounded-full bg-accent-500 transition-[width] duration-500"
           style={{ width: `${pct}%` }}

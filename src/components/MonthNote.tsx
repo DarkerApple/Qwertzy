@@ -35,11 +35,11 @@ export function MonthNote({
   const pct = total ? Math.round((done / total) * 100) : 0;
 
   return (
-    <article className="surface hairline overflow-hidden rounded-2xl border shadow-sheet">
-      <header className="hairline border-b px-4 py-4 sm:px-6 sm:py-5">
+    <article className="surface hairline overflow-hidden rounded-3xl border shadow-sheet">
+      <header className="hairline border-b px-4 py-5 sm:px-6 sm:py-6">
         <div className="flex items-end justify-between gap-4">
           <div className="min-w-0">
-            <h1 className="font-display text-[26px] leading-none tracking-tight sm:text-[30px]">
+            <h1 className="font-display text-[28px] leading-none tracking-tight sm:text-[32px]">
               {monthLabel(key)}
             </h1>
             <p className="muted mt-1.5 text-[12px]">

@@ -10,12 +10,12 @@ interface Props {
 /** How the app works, written as the page it describes. */
 export function Guide({ onBack, onStart, themeToggle }: Props) {
   return (
-    <div className="min-h-dvh">
+    <div className="page">
       <header
-        className="sticky top-0 z-30"
-        style={{ height: 'var(--header-h)', backgroundColor: 'rgb(var(--paper))' }}
+        className="sticky top-0 z-30 backdrop-blur-md"
+        style={{ height: 'var(--header-h)', backgroundColor: 'rgb(var(--paper) / 0.82)' }}
       >
-        <div className="mx-auto flex h-full max-w-2xl items-center gap-1 px-3 sm:px-4">
+        <div className="mx-auto flex h-full max-w-2xl items-center gap-1 px-4 sm:px-5">
           <button
             type="button"
             onClick={onBack}
@@ -28,8 +28,8 @@ export function Guide({ onBack, onStart, themeToggle }: Props) {
         </div>
       </header>
 
-      <main className="mx-auto max-w-2xl px-3 pb-20 pt-2 sm:px-4">
-        <h1 className="font-display text-[32px] leading-tight tracking-tight sm:text-[38px]">
+      <main className="mx-auto w-full max-w-2xl px-4 pb-16 pt-3 sm:px-5">
+        <h1 className="font-display text-[34px] leading-[1.05] tracking-tight sm:text-[42px]">
           How Qwertzy works
         </h1>
         <p className="muted mt-1.5 text-[13px] leading-relaxed">

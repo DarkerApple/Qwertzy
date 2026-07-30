@@ -10,6 +10,7 @@
     --row: 249 246 239; /* row hover / active tint */
     --text: 32 30 27;
     --muted: 122 114 100;
+    --glow: 110 105 232; /* the wash behind the page */
 
     /* Sticky offsets, kept in one place so the header, tabs and day headings
        can never drift out of alignment. */
@@ -24,6 +25,7 @@
     --row: 38 36 33;
     --text: 236 233 227;
     --muted: 150 143 131;
+    --glow: 138 133 243;
   }
 
   html {
@@ -46,6 +48,15 @@
   body {
     @apply antialiased;
     background-color: rgb(var(--paper));
+    /* A soft wash from the top so the page reads as lit paper rather than a
+       flat fill. Fixed, so it doesn't slide around as the page scrolls. */
+    background-image: radial-gradient(
+      1100px 520px at 50% -12%,
+      rgb(var(--glow) / 0.11),
+      transparent 70%
+    );
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     color: rgb(var(--text));
     /* Nothing scrolls sideways; month switching is by tab, not by page pan. */
     overflow-x: hidden;
@@ -101,6 +112,18 @@
   .no-ring:focus-visible {
     outline: none;
     box-shadow: none;
+  }
+
+  /* Vertical centring that can't clip. Auto margins split the free space when
+     the content is short, and collapse to zero when it's taller than the
+     viewport — unlike justify-center, which would cut off the top. */
+  .page {
+    display: flex;
+    min-height: 100dvh;
+    flex-direction: column;
+  }
+  .page > main {
+    margin-block: auto;
   }
 
   .no-scrollbar {

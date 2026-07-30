@@ -87,10 +87,10 @@ export function VaultGate({ exists, onOpen, onBack, onReset, themeToggle }: Prop
     'surface hairline w-full rounded-xl border px-3 py-2.5 text-[15px] focus:border-accent-400 focus:outline-none';
 
   return (
-    <div className="min-h-dvh">
+    <div className="page">
       <header
-        className="sticky top-0 z-30"
-        style={{ height: 'var(--header-h)', backgroundColor: 'rgb(var(--paper))' }}
+        className="sticky top-0 z-30 backdrop-blur-md"
+        style={{ height: 'var(--header-h)', backgroundColor: 'rgb(var(--paper) / 0.82)' }}
       >
         <div className="mx-auto flex h-full max-w-2xl items-center gap-1 px-3 sm:px-4">
           <button
@@ -105,8 +105,8 @@ export function VaultGate({ exists, onOpen, onBack, onReset, themeToggle }: Prop
         </div>
       </header>
 
-      <main className="mx-auto flex max-w-md flex-col justify-center px-4 pb-20 pt-10">
-        <div className="surface hairline rounded-2xl border p-5 shadow-sheet sm:p-6">
+      <main className="mx-auto w-full max-w-md px-4 pb-16 pt-6">
+        <div className="surface hairline rounded-3xl border p-6 shadow-sheet sm:p-7">
           <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-500/15 text-amber-700 dark:text-amber-300">
             <LockIcon className="h-5 w-5" />
           </span>
