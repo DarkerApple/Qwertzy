@@ -5,6 +5,7 @@ import { describeDuration, findTimerTokens } from '../lib/timer';
 
 interface Props {
   onCapture: (text: string) => void;
+  placeholder?: string;
 }
 
 /**
@@ -17,7 +18,7 @@ interface Props {
  * next, which is how you'd separate two thoughts on paper anyway.
  */
 export const InlineComposer = forwardRef<HTMLTextAreaElement, Props>(function InlineComposer(
-  { onCapture },
+  { onCapture, placeholder = 'Write…' },
   ref,
 ) {
   const [text, setText] = useState('');
@@ -133,7 +134,7 @@ export const InlineComposer = forwardRef<HTMLTextAreaElement, Props>(function In
             commit();
           }}
           rows={1}
-          placeholder="Write…"
+          placeholder={placeholder}
           aria-label="Write a note"
           className="no-ring min-h-[22px] flex-1 resize-none overflow-hidden border-0 bg-transparent p-0 leading-snug placeholder:text-ink-400 focus:outline-none dark:placeholder:text-ink-500"
         />

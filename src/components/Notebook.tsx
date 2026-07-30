@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Filter, Item } from '../types';
 import { useNotebook } from '../hooks/useNotebook';
-import { byMonth, filterItems, inMonth, inWrittenOrder, monthSummaries, startsNewDay } from '../lib/group';
+import { byMonth, countBelow, filterItems, inMonth, inWrittenOrder, monthSummaries, roots, startsNewDay } from '../lib/group';
 import type { MonthSummary } from '../lib/group';
 import { currentMonthKey, monthLabel } from '../lib/time';
 import type { NotebookStorage } from '../lib/storage';
@@ -20,7 +20,8 @@ import { UndoToast } from './UndoToast';
 import { Menu } from './Menu';
 import { MonthAside } from './MonthAside';
 import { QuartzBadge } from './QuartzMark';
-import { ChartIcon, ChevronLeftIcon, ChevronRightIcon, LockIcon, SearchIcon, SlidersIcon } from './icons';
+import { NotePage } from './NotePage';
+import { ChevronLeftIcon, ChevronRightIcon, LockIcon, SearchIcon, SlidersIcon } from './icons';
 
 const EMPTY_MONTH = (key: string): MonthSummary => ({ key, total: 0, done: 0, open: 0, threads: 0 });
 
@@ -34,7 +35,9 @@ interface Props {
   secret?: boolean;
   onLock?: () => void;
   onOpenSettings: () => void;
-  onOpenVisualize: (month: string) => void;
+  onOpenNote: (id: string) => void;
+  /** When set, the notebook shows this note's page instead of the month. */
+  noteId?: string;
   /** Runs what was written through any enabled plugins first. */
   applyCapture?: (text: string) => Promise<string[]>;
   /** Notes handed over from elsewhere — a plugin command, say. */
@@ -57,7 +60,8 @@ export function Notebook({
   secret = false,
   onLock,
   onOpenSettings,
-  onOpenVisualize,
+  onOpenNote,
+  noteId,
   applyCapture,
   incoming,
   onIncomingHandled,
@@ -72,9 +76,8 @@ export function Notebook({
     lastRemoved,
     undoRemove,
     dismissUndo,
-    reply,
-    removeReply,
-    promoteReply,
+    childrenOf,
+    ancestorsOf,
     toggleTimer,
     resetTimer,
     finishTimer,
@@ -126,10 +129,14 @@ export function Notebook({
   const trimmedQuery = query.trim();
   const searchMode = searching && trimmedQuery.length > 0;
 
+  // A month page lists what was started that month; elaborations live under
+  // the note they belong to, on its own page.
   const pageItems = useMemo(
-    () => inWrittenOrder(filterItems(monthItems, filter, '')),
+    () => inWrittenOrder(roots(filterItems(monthItems, filter, ''))),
     [monthItems, filter],
   );
+
+  const note = noteId ? items.find((item) => item.id === noteId) : undefined;
 
   const running = useMemo(
     () => items.some((item) => item.timers.some((timer) => timer.state === 'running')),
@@ -169,8 +176,6 @@ export function Notebook({
   }, [items, filter, trimmedQuery, searchMode]);
   const resultCount = results.reduce((sum, group) => sum + group.items.length, 0);
 
-  const textById = useMemo(() => new Map(items.map((i) => [i.id, i.text])), [items]);
-
   /** Writing happens on the current month's page, so go there first. */
   const focusComposer = useCallback(() => {
     setActiveMonth(thisMonth);
@@ -181,17 +186,17 @@ export function Notebook({
     });
   }, [thisMonth]);
 
-  function handleCapture(text: string) {
+  function handleCapture(text: string, parentId: string | null = null) {
     if (applyCapture) {
       void applyCapture(text).then((pieces) => {
         // A plugin returning nothing usable must not swallow what was written.
         const notes = pieces.length ? pieces : [text];
-        for (const note of notes) capture(note);
+        for (const one of notes) capture(one, parentId);
         afterCapture(text);
       });
       return;
     }
-    const added = capture(text);
+    const added = capture(text, parentId);
     if (!added) return;
     afterCapture(text);
   }
@@ -315,22 +320,18 @@ export function Notebook({
       key={item.id}
       item={item}
       now={now}
-      expanded={expandedId === item.id}
+      below={countBelow(items, item.id)}
       startsNewDay={newDay}
-      onToggleExpand={() => setExpandedId((current) => (current === item.id ? null : item.id))}
+      onOpen={() => onOpenNote(item.id)}
       onToggle={() => toggle(item.id)}
       onEdit={(text) => edit(item.id, text)}
       onRemove={() => remove(item.id)}
-      onReply={(text) => reply(item.id, text)}
-      onRemoveReply={(replyId) => removeReply(item.id, replyId)}
-      onPromoteReply={(replyId) => promoteReply(item.id, replyId)}
       onToggleTimer={(timerId) => {
         void ensurePermission();
         setNow(Date.now());
         toggleTimer(item.id, timerId);
       }}
       onResetTimer={(timerId) => resetTimer(item.id, timerId)}
-      parentText={item.parentId ? textById.get(item.parentId) : undefined}
     />
   );
 
@@ -408,15 +409,6 @@ export function Notebook({
             {chrome}
             <button
               type="button"
-              onClick={() => onOpenVisualize(activeMonth)}
-              aria-label="Visualise this month"
-              title="Visualise this month"
-              className="muted flex h-9 w-9 items-center justify-center rounded-xl transition duration-200 hover:text-[rgb(var(--text))]"
-            >
-              <ChartIcon />
-            </button>
-            <button
-              type="button"
               onClick={onOpenSettings}
               aria-label="Settings"
               className="muted flex h-9 w-9 items-center justify-center rounded-xl transition duration-200 hover:rotate-45 hover:text-[rgb(var(--text))]"
@@ -466,7 +458,37 @@ export function Notebook({
       >
         <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_19rem] lg:items-start lg:gap-6">
           <div className="min-w-0">
-        {searchMode ? (
+        {noteId && note ? (
+          <NotePage
+            ref={composerRef}
+            note={note}
+            ancestors={ancestorsOf(note.id)}
+            children={childrenOf(note.id)}
+            now={now}
+            countBelow={(id) => countBelow(items, id)}
+            onOpenNote={onOpenNote}
+            // Leaving a note is a navigation, not a state change — the URL has
+            // to move or the page stays exactly where it was.
+            onOpenMonth={() => onOpenNote('')}
+            onCapture={(text) => handleCapture(text, note.id)}
+            onToggle={toggle}
+            onEdit={edit}
+            onRemove={(id) => {
+              remove(id);
+              if (id === note.id) onOpenNote('');
+            }}
+            onToggleTimer={(id, timerId) => {
+              setNow(Date.now());
+              toggleTimer(id, timerId);
+            }}
+            onResetTimer={resetTimer}
+          />
+        ) : noteId ? (
+          <div className="surface hairline rounded-3xl border p-8 text-center shadow-sheet">
+            <p className="font-display text-[19px]">That note isn't here</p>
+            <p className="muted mt-2 text-[13px]">It may have been deleted.</p>
+          </div>
+        ) : searchMode ? (
           <div className="space-y-4">
             <p className="muted px-1 text-[12px]">
               {resultCount} {resultCount === 1 ? 'match' : 'matches'} for “{trimmedQuery}”

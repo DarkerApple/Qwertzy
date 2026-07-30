@@ -20,9 +20,10 @@ Whatever you've written is saved when you look away, so nothing is ever lost mid
 Paste a bulleted list and each line becomes its own item, with leading bullets, numbers and `[ ]`
 boxes stripped, in the order you wrote them.
 
-**Ideas get threads.** Tapping any line opens its thread, where you can elaborate over time. When
-the thinking produces an actual next step, one tap promotes that message into its own checklist item,
-labelled with the thought it came from.
+**Ideas go deeper.** Tapping a note opens it on its own page, with whatever elaborates on it
+underneath. An elaboration is just a note — so it opens too, and you can keep going as far as the
+thought does. There's no separate "reply" kind of thing, and no chat box: you write on a note's page
+with the same line you write with anywhere else.
 
 **A month is one page.** Not cards in a feed and not a stack of small notes — one continuous sheet,
 headed by the month, its note count and a completion percentage. There are no day headings: every
@@ -55,7 +56,7 @@ entry rather than stacking one per month.
 | Jump to the writing line | `N` (or `C`), or tap the empty page below the last note |
 | Finish a note | `Enter` twice, `Ctrl`/`⌘`+`Enter`, or just look away |
 | Start a timer | Write `time(10m)` in the note |
-| Close a thread or search | `Esc` |
+| Close search | `Esc` |
 | Go anywhere | `⌘K` / `Ctrl+K` |
 
 Writing always belongs to today, so older months are read-only pages with a `Write on July 2026's
@@ -98,11 +99,8 @@ expired while the tab was closed is shown as finished rather than announced hour
 ## Graphs
 
 `graph(x^2)` written into a note becomes a small plot, right where you typed it — the same idea as
-`time(...)`. Give it a range with `graph(sin(x), -6, 6)`.
-
-The **Visualise** page (the chart icon, or ⌘K → Visualise) has a bigger plotter for sketching a
-function while you work something out, next to **the month as a tree**: notes down the spine, their
-threads beneath them, and anything split out of a thread hanging off the note it came from.
+`time(...)`. Give it a range with `graph(sin(x), -6, 6)`. It works on a month page and on a note's
+own page, because those are the same kind of page.
 
 Expressions are parsed rather than `eval`'d — shunting-yard to RPN, then a stack machine — so
 anything that isn't a function of x is rejected with a reason instead of quietly doing something
@@ -131,12 +129,9 @@ written in, in one list. Type, arrow, Enter.
 
 ## Using a line
 
-Tap the text to open its thread. Inside are **Edit note**, **Delete** and **Close** — no action
-depends on hovering, which is what makes the same layout work on a phone. Pointer users also get a
-hover delete on the row and double-click to edit.
-
-Deleting is undoable for 8 seconds. The ⋮ menu clears completed items and exports or imports a JSON
-backup — worth doing occasionally, since clearing site data clears notes.
+Tap a note to open its page. Double-click the text to edit it in place; the bin on the right (or
+**Delete** on its page) removes it — along with everything written under it, since an elaboration
+with nothing to elaborate on is unreachable. Undo brings the whole branch back for 8 seconds.
 
 ## Secret notes
 
@@ -239,7 +234,7 @@ dependencies in total.
 ```
 src/
   App.tsx              the shell: routes, theme, and who holds the vault key
-  types.ts             Item + Reply + NoteTimer
+  types.ts             Item + NoteTimer — a note is the only kind of thing
   hooks/useNotebook.ts every mutation, written back through a storage adapter
   hooks/useSettings.ts theme, accent, motion, sound — applied to <html>
   hooks/usePlugins.ts  installed plugins, kept loaded in the worker
@@ -263,7 +258,6 @@ src/
     Settings.tsx       theme, accent, motion, sound
     Plugins.tsx        install, enable, run — with ? for the guide
     Alarms.tsx         set, repeat, enable
-    Visualize.tsx      the month as a tree, and the plotter
     Plot.tsx           a function of x, drawn
     CommandPalette.tsx go anywhere, ⌘K
     PinnedTimerWidget  the header timer
@@ -272,12 +266,12 @@ src/
     VaultGate.tsx      set a password, or enter it
     MonthTabs.tsx      the navigation
     MonthNote.tsx      the month sheet: title, progress, the page itself
-    NoteRow.tsx        one line + its expanded panel
+    NoteRow.tsx        one line of a page
+    NotePage.tsx       one note, and everything under it
     NoteText.tsx       note text with time(...) swapped for live clocks
     TimerChip.tsx      the clock: countdown, fill, play/pause/reset
     InlineComposer.tsx the live last line of the page
     QuartzMark.tsx     the crystal, in the header and the favicon
-    Thread.tsx         elaboration, and promoting a message to an item
     FilterTabs, SearchBar, EmptyState, UndoToast, TimerToast, Menu, icons
 ```
 

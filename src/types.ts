@@ -1,10 +1,3 @@
-/** A single message inside an item's thread — an elaboration on the original thought. */
-export interface Reply {
-  id: string;
-  text: string;
-  createdAt: number;
-}
-
 export type TimerState = 'running' | 'paused' | 'done';
 
 /**
@@ -36,8 +29,11 @@ export interface Item {
   done: boolean;
   /** When it was checked off, so completed work can still show a time. */
   doneAt: number | null;
-  replies: Reply[];
-  /** Set when this item was split out of another item's thread. */
+  /**
+   * The note this one elaborates on, if any. There's no separate "reply" kind:
+   * an elaboration is a note like any other, which is what lets you elaborate
+   * on an elaboration, and on that, as far down as the thought goes.
+   */
   parentId: string | null;
   /** One per `time(...)` token in the text, in token order. */
   timers: NoteTimer[];

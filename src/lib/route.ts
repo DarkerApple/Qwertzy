@@ -8,7 +8,7 @@
  *   #/settings         theme, accent, motion, sound
  *   #/plugins          community plugins, and how to write one
  *   #/alarms           alarms that ring at a time of day
- *   #/visualize        the month as a tree, and a function plotter
+ *   #/n/<id>           one note, and everything elaborating on it
  *   #/secret           the secret notebook (locked until it isn't)
  *   #/secret/2026-07   a month of it
  */
@@ -19,7 +19,7 @@ export type Route =
   | { name: 'settings' }
   | { name: 'plugins' }
   | { name: 'alarms' }
-  | { name: 'visualize'; month?: string }
+  | { name: 'note'; id: string; secret?: boolean }
   | { name: 'secret'; month?: string };
 
 const MONTH = /^\d{4}-\d{2}$/;
@@ -30,10 +30,9 @@ export function parseRoute(hash: string): Route {
   if (path[0] === 'settings') return { name: 'settings' };
   if (path[0] === 'plugins') return { name: 'plugins' };
   if (path[0] === 'alarms') return { name: 'alarms' };
-  if (path[0] === 'visualize') {
-    return { name: 'visualize', month: MONTH.test(path[1] ?? '') ? path[1] : undefined };
-  }
+  if (path[0] === 'n' && path[1]) return { name: 'note', id: path[1] };
   if (path[0] === 'secret') {
+    if (path[1] === 'n' && path[2]) return { name: 'note', id: path[2], secret: true };
     return { name: 'secret', month: MONTH.test(path[1] ?? '') ? path[1] : undefined };
   }
   if (path[0] === 'm' && MONTH.test(path[1] ?? '')) return { name: 'month', month: path[1] };
@@ -52,8 +51,8 @@ export function routeToHash(route: Route): string {
       return '#/plugins';
     case 'alarms':
       return '#/alarms';
-    case 'visualize':
-      return route.month ? `#/visualize/${route.month}` : '#/visualize';
+    case 'note':
+      return route.secret ? `#/secret/n/${route.id}` : `#/n/${route.id}`;
     case 'secret':
       return route.month ? `#/secret/${route.month}` : '#/secret';
     default:

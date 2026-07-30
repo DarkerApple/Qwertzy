@@ -1,4 +1,5 @@
 import type { AppState, Item, NoteTimer, TimerState } from '../types';
+import { newId } from './id';
 
 const KEY = 'qwertzy.v1';
 export const THEME_KEY = 'qwertzy.theme';
@@ -42,14 +43,6 @@ function reviveItem(raw: unknown): Item | null {
   const o = raw as Record<string, unknown>;
   if (typeof o.id !== 'string' || typeof o.text !== 'string') return null;
   const createdAt = typeof o.createdAt === 'number' ? o.createdAt : Date.now();
-  const replies = Array.isArray(o.replies)
-    ? o.replies.flatMap((r) => {
-        if (!r || typeof r !== 'object') return [];
-        const x = r as Record<string, unknown>;
-        if (typeof x.id !== 'string' || typeof x.text !== 'string') return [];
-        return [{ id: x.id, text: x.text, createdAt: typeof x.createdAt === 'number' ? x.createdAt : createdAt }];
-      })
-    : [];
   const timers = Array.isArray(o.timers)
     ? o.timers.flatMap((t) => {
         const timer = reviveTimer(t);
@@ -62,10 +55,41 @@ function reviveItem(raw: unknown): Item | null {
     createdAt,
     done: o.done === true,
     doneAt: typeof o.doneAt === 'number' ? o.doneAt : null,
-    replies,
     parentId: typeof o.parentId === 'string' ? o.parentId : null,
     timers,
   };
+}
+
+/**
+ * Notes written before elaborations were notes kept their thread in a
+ * `replies` array. Each of those becomes a child note, so nothing written is
+ * lost and old data opens as though it had always worked this way.
+ */
+function reviveAll(list: unknown[]): Item[] {
+  const items: Item[] = [];
+  for (const raw of list) {
+    const item = reviveItem(raw);
+    if (!item) continue;
+    items.push(item);
+
+    const legacy = (raw as Record<string, unknown>)?.replies;
+    if (!Array.isArray(legacy)) continue;
+    legacy.forEach((reply, i) => {
+      if (!reply || typeof reply !== 'object') return;
+      const r = reply as Record<string, unknown>;
+      if (typeof r.text !== 'string' || !r.text.trim()) return;
+      items.push({
+        id: typeof r.id === 'string' ? r.id : newId(),
+        text: r.text,
+        createdAt: typeof r.createdAt === 'number' ? r.createdAt : item.createdAt + i + 1,
+        done: false,
+        doneAt: null,
+        parentId: item.id,
+        timers: [],
+      });
+    });
+  }
+  return items;
 }
 
 export function loadItems(): Item[] {
@@ -74,10 +98,7 @@ export function loadItems(): Item[] {
     if (!raw) return [];
     const parsed = JSON.parse(raw) as Partial<AppState>;
     if (!parsed || !Array.isArray(parsed.items)) return [];
-    return parsed.items.flatMap((i) => {
-      const item = reviveItem(i);
-      return item ? [item] : [];
-    });
+    return reviveAll(parsed.items);
   } catch {
     // Corrupt or unavailable storage shouldn't blank the app — start empty.
     return [];
@@ -105,10 +126,7 @@ export function parseImport(text: string): Item[] | null {
   try {
     const parsed = JSON.parse(text) as Partial<AppState>;
     if (!parsed || !Array.isArray(parsed.items)) return null;
-    return parsed.items.flatMap((i) => {
-      const item = reviveItem(i);
-      return item ? [item] : [];
-    });
+    return reviveAll(parsed.items);
   } catch {
     return null;
   }

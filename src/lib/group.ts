@@ -6,17 +6,25 @@ export interface MonthSummary {
   total: number;
   done: number;
   open: number;
+  /** How many of them are elaborations on another note. */
   threads: number;
 }
 
-/** Search covers thread replies too — an idea often lives in its elaboration. */
 function matches(item: Item, query: string): boolean {
   if (!query) return true;
-  const q = query.toLowerCase();
-  return (
-    item.text.toLowerCase().includes(q) ||
-    item.replies.some((r) => r.text.toLowerCase().includes(q))
-  );
+  return item.text.toLowerCase().includes(query.toLowerCase());
+}
+
+/** Only notes that start a thought; elaborations live on their own page. */
+export function roots(items: Item[]): Item[] {
+  const ids = new Set(items.map((i) => i.id));
+  return items.filter((item) => !item.parentId || !ids.has(item.parentId));
+}
+
+/** How many notes hang off this one, all the way down. */
+export function countBelow(items: Item[], id: string): number {
+  const direct = items.filter((item) => item.parentId === id);
+  return direct.reduce((total, child) => total + 1 + countBelow(items, child.id), 0);
 }
 
 export function filterItems(items: Item[], filter: Filter, query: string): Item[] {
@@ -35,7 +43,7 @@ export function monthSummaries(items: Item[]): MonthSummary[] {
     summary.total += 1;
     if (item.done) summary.done += 1;
     else summary.open += 1;
-    if (item.replies.length) summary.threads += 1;
+    if (item.parentId) summary.threads += 1;
     map.set(key, summary);
   }
   return [...map.values()].sort((a, b) => a.key.localeCompare(b.key));

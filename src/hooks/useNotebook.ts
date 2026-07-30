@@ -9,6 +9,8 @@ export interface RemovedItem {
   item: Item;
   /** Where it sat in the array, so undo restores the original order. */
   index: number;
+  /** Its elaborations, which went with it and come back with it. */
+  buried: Item[];
 }
 
 /**
@@ -64,7 +66,6 @@ export function useNotebook(storage: NotebookStorage) {
       createdAt: now + i,
       done: false,
       doneAt: null,
-      replies: [],
       parentId,
       timers: timersFor(text, [], now),
     }));
@@ -179,10 +180,25 @@ export function useNotebook(storage: NotebookStorage) {
     setItems((prev) => {
       const index = prev.findIndex((item) => item.id === id);
       if (index === -1) return prev;
-      setLastRemoved({ item: prev[index], index });
+
+      // Everything below it goes too — an elaboration with no note to
+      // elaborate on is unreachable, not orphaned-but-fine.
+      const doomed = new Set([id]);
+      let grew = true;
+      while (grew) {
+        grew = false;
+        for (const item of prev) {
+          if (item.parentId && doomed.has(item.parentId) && !doomed.has(item.id)) {
+            doomed.add(item.id);
+            grew = true;
+          }
+        }
+      }
+
+      setLastRemoved({ item: prev[index], index, buried: prev.filter((i) => doomed.has(i.id) && i.id !== id) });
       if (undoTimer.current) window.clearTimeout(undoTimer.current);
       undoTimer.current = window.setTimeout(() => setLastRemoved(null), 8000);
-      return prev.filter((item) => item.id !== id);
+      return prev.filter((item) => !doomed.has(item.id));
     });
   }, []);
 
@@ -192,7 +208,7 @@ export function useNotebook(storage: NotebookStorage) {
       setItems((prev) => {
         const next = [...prev];
         next.splice(Math.min(removed.index, next.length), 0, removed.item);
-        return next;
+        return [...next, ...removed.buried];
       });
       return null;
     });
@@ -200,52 +216,31 @@ export function useNotebook(storage: NotebookStorage) {
 
   const dismissUndo = useCallback(() => setLastRemoved(null), []);
 
-  /** Add a message to an item's thread. */
-  const reply = useCallback((id: string, text: string) => {
-    const trimmed = text.trim();
-    if (!trimmed) return;
-    const message = { id: newId(), text: trimmed, createdAt: Date.now() };
-    setItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, replies: [...item.replies, message] } : item)),
-    );
-  }, []);
+  /** Notes elaborating on this one, oldest first. */
+  const childrenOf = useCallback(
+    (id: string) => items.filter((item) => item.parentId === id).sort((a, b) => a.createdAt - b.createdAt),
+    [items],
+  );
 
-  const removeReply = useCallback((id: string, replyId: string) => {
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, replies: item.replies.filter((r) => r.id !== replyId) } : item,
-      ),
-    );
-  }, []);
-
-  /**
-   * Promote a thread message to its own checklist item. Elaborating on an idea
-   * usually surfaces the actual next step — this is how that step escapes the
-   * thread without retyping it.
-   */
-  const promoteReply = useCallback((id: string, replyId: string) => {
-    setItems((prev) => {
-      const parent = prev.find((item) => item.id === id);
-      const message = parent?.replies.find((r) => r.id === replyId);
-      if (!parent || !message) return prev;
-      const promoted: Item = {
-        id: newId(),
-        text: message.text,
-        createdAt: Date.now(),
-        done: false,
-        doneAt: null,
-        replies: [],
-        parentId: parent.id,
-        timers: timersFor(message.text),
-      };
-      return [
-        promoted,
-        ...prev.map((item) =>
-          item.id === id ? { ...item, replies: item.replies.filter((r) => r.id !== replyId) } : item,
-        ),
-      ];
-    });
-  }, []);
+  /** The chain from a root note down to this one, for the breadcrumb. */
+  const ancestorsOf = useCallback(
+    (id: string) => {
+      const byId = new Map(items.map((item) => [item.id, item]));
+      const chain: Item[] = [];
+      let current = byId.get(id)?.parentId ?? null;
+      // Guard against a cycle in hand-edited data rather than hanging on it.
+      const seen = new Set<string>();
+      while (current && !seen.has(current)) {
+        seen.add(current);
+        const parent = byId.get(current);
+        if (!parent) break;
+        chain.unshift(parent);
+        current = parent.parentId;
+      }
+      return chain;
+    },
+    [items],
+  );
 
   const clearDone = useCallback(() => {
     setItems((prev) => prev.filter((item) => !item.done));
@@ -264,9 +259,8 @@ export function useNotebook(storage: NotebookStorage) {
     lastRemoved,
     undoRemove,
     dismissUndo,
-    reply,
-    removeReply,
-    promoteReply,
+    childrenOf,
+    ancestorsOf,
     toggleTimer,
     resetTimer,
     finishTimer,

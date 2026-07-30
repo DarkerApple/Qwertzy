@@ -3,7 +3,7 @@ import type { Item } from '../types';
 import { monthSummaries } from '../lib/group';
 import type { MonthSummary } from '../lib/group';
 import { currentMonthKey, monthLabel } from '../lib/time';
-import { AlarmIcon, BookIcon, ChartIcon, ChevronRightIcon, LockIcon, SlidersIcon, SparkIcon, UnlockIcon } from './icons';
+import { AlarmIcon, BookIcon, ChevronRightIcon, LockIcon, SlidersIcon, SparkIcon, UnlockIcon } from './icons';
 import { QuartzCorner, QuartzMark, QuartzWordmark } from './QuartzMark';
 
 interface Props {
@@ -14,7 +14,6 @@ interface Props {
   onOpenGuide: () => void;
   onOpenSecret: () => void;
   onOpenSettings: () => void;
-  onOpenVisualize: () => void;
   onOpenAlarms: () => void;
   alarmCount: number;
   chrome: React.ReactNode;
@@ -36,7 +35,6 @@ export function Home({
   onOpenGuide,
   onOpenSecret,
   onOpenSettings,
-  onOpenVisualize,
   onOpenAlarms,
   alarmCount,
   chrome,
@@ -134,7 +132,7 @@ export function Home({
               <Row label="Notes" value={items.length} />
               <Row label="Still to do" value={open} />
               <Row label="Done" value={items.length - open} />
-              <Row label="With threads" value={items.filter((i) => i.replies.length > 0).length} />
+              <Row label="Elaborations" value={items.filter((i) => i.parentId).length} />
               <Row label="Months written in" value={summaries.length} />
             </dl>
           </div>
@@ -184,13 +182,6 @@ export function Home({
             tone="amber"
             title="Secret notes"
             subtitle={vaultOpen ? 'Unlocked — open it' : vaultExists ? 'Locked' : 'Set a password'}
-          />
-          <ShelfCard
-            onClick={onOpenVisualize}
-            icon={<ChartIcon className="h-[18px] w-[18px]" />}
-            tone="accent"
-            title="Visualise"
-            subtitle="The month as a tree, and graphs"
           />
           <ShelfCard
             onClick={onOpenAlarms}

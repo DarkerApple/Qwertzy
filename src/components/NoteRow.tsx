@@ -3,49 +3,37 @@ import type { Item } from '../types';
 import { dayLabel, fullStamp, isToday, timeLabel } from '../lib/time';
 import { CheckIcon, ThreadIcon, TrashIcon } from './icons';
 import { NoteText } from './NoteText';
-import { Thread } from './Thread';
 
 interface Props {
   item: Item;
-  expanded: boolean;
   now: number;
-  onToggleExpand: () => void;
+  /** How many notes hang off this one, all the way down. */
+  below: number;
+  onOpen: () => void;
   onToggle: () => void;
   onEdit: (text: string) => void;
   onRemove: () => void;
-  onReply: (text: string) => void;
-  onRemoveReply: (replyId: string) => void;
-  onPromoteReply: (replyId: string) => void;
   onToggleTimer: (timerId: string) => void;
   onResetTimer: (timerId: string) => void;
-  /** Shown when this item was split out of another item's thread. */
-  parentText?: string;
   /** A little air where the day changes — grouping without a heading. */
   startsNewDay?: boolean;
 }
 
 /**
- * One line of the month's note. No rules between lines and no boxes: the page
- * is one long note, and each line just happens to carry a checkbox and a time.
- *
- * Tapping the line opens its thread — the one primary action, and the only one
- * that works identically with a finger and a mouse. Edit and delete live inside
- * that panel so nothing depends on hover.
+ * One line of a page. Tapping it opens that note on its own page, where it can
+ * be elaborated on — and each elaboration is a line like this one, so it opens
+ * too. That's the whole structure; there's no second kind of thing.
  */
 export function NoteRow({
   item,
-  expanded,
   now,
-  onToggleExpand,
+  below,
+  onOpen,
   onToggle,
   onEdit,
   onRemove,
-  onReply,
-  onRemoveReply,
-  onPromoteReply,
   onToggleTimer,
   onResetTimer,
-  parentText,
   startsNewDay,
 }: Props) {
   const [editing, setEditing] = useState(false);
@@ -66,11 +54,6 @@ export function NoteRow({
     el?.setSelectionRange(el.value.length, el.value.length);
   }, [editing]);
 
-  function startEditing() {
-    setDraft(item.text);
-    setEditing(true);
-  }
-
   function commitEdit() {
     setEditing(false);
     if (draft.trim() && draft.trim() !== item.text) onEdit(draft);
@@ -80,11 +63,7 @@ export function NoteRow({
   const when = item.done && item.doneAt ? item.doneAt : item.createdAt;
 
   return (
-    <li
-      className={`group animate-fade-in rounded-lg transition-colors ${expanded ? 'rowtint' : ''} ${
-        startsNewDay ? 'mt-4' : ''
-      }`}
-    >
+    <li className={`group animate-fade-in rounded-lg transition-colors ${startsNewDay ? 'mt-4' : ''}`}>
       <div className="flex items-start gap-3 px-3 py-1.5 sm:px-4">
         <button
           type="button"
@@ -107,12 +86,6 @@ export function NoteRow({
         </button>
 
         <div className="min-w-0 flex-1">
-          {parentText && (
-            <p className="muted mb-0.5 truncate text-[11px]" title={`Split out of: ${parentText}`}>
-              ↳ from “{parentText}”
-            </p>
-          )}
-
           {editing ? (
             <textarea
               ref={editRef}
@@ -130,28 +103,28 @@ export function NoteRow({
                 }
               }}
               rows={1}
-              aria-label="Edit item"
+              aria-label="Edit note"
               className="hairline w-full resize-none rounded-lg border bg-transparent px-2 py-1 text-[15px] leading-relaxed focus:border-accent-400 focus:outline-none"
             />
           ) : (
-            // Not a <button>: a note can contain timer chips, which are
-            // buttons themselves, and buttons don't nest.
+            // Not a <button>: a note can contain timer chips and graphs, which
+            // are interactive themselves, and buttons don't nest.
             <div
               role="button"
               tabIndex={0}
-              onClick={onToggleExpand}
-              onDoubleClick={startEditing}
+              onClick={onOpen}
+              onDoubleClick={() => {
+                setDraft(item.text);
+                setEditing(true);
+              }}
               onKeyDown={(e) => {
                 if (e.target !== e.currentTarget) return;
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
-                  onToggleExpand();
+                  onOpen();
                 }
               }}
-              aria-expanded={expanded}
-              // Named explicitly: otherwise the name is built from the contents
-              // and would swallow the timer chips' own button labels.
-              aria-label={`Thread for “${item.text}”`}
+              aria-label={`Open “${item.text}”`}
               className="block w-full cursor-pointer text-left"
             >
               <NoteText
@@ -166,18 +139,19 @@ export function NoteRow({
             </div>
           )}
 
-          {(item.replies.length > 0 || expanded) && (
-            <p className="mt-1 flex items-center gap-1 text-[11px] font-medium text-accent-700 dark:text-accent-300">
+          {below > 0 && (
+            <button
+              type="button"
+              onClick={onOpen}
+              className="mt-1 flex items-center gap-1 text-[11px] font-medium text-accent-700 transition hover:underline dark:text-accent-300"
+            >
               <ThreadIcon className="h-[13px] w-[13px]" />
-              {item.replies.length > 0
-                ? `${item.replies.length} in thread`
-                : 'Thread — say more about this'}
-            </p>
+              {below} below
+            </button>
           )}
         </div>
 
-        {/* The margin carries the time, and the date underneath it only when
-            it isn't today — which is why the page needs no day headings. */}
+        {/* The time in a fixed margin column so stamps line up down the page. */}
         <div className="flex shrink-0 items-start gap-1 pt-0.5">
           <time
             className="muted w-16 text-right text-[11px] leading-4 tabular-nums"
@@ -193,7 +167,6 @@ export function NoteRow({
               <span className="block text-[10px] opacity-70">{dayLabel(when, now)}</span>
             )}
           </time>
-          {/* Shortcut for pointer users; touch users get the same action below. */}
           <button
             type="button"
             onClick={onRemove}
@@ -204,40 +177,6 @@ export function NoteRow({
           </button>
         </div>
       </div>
-
-      {expanded && (
-        <div className="animate-slide-up px-3 pb-3 sm:px-4">
-          <Thread
-            item={item}
-            onReply={onReply}
-            onRemoveReply={onRemoveReply}
-            onPromoteReply={onPromoteReply}
-          />
-          <div className="mt-2 flex items-center gap-2 pl-9">
-            <button
-              type="button"
-              onClick={startEditing}
-              className="hairline muted rounded-full border px-3 py-1.5 text-[12px] transition hover:text-[rgb(var(--text))]"
-            >
-              Edit note
-            </button>
-            <button
-              type="button"
-              onClick={onRemove}
-              className="hairline muted rounded-full border px-3 py-1.5 text-[12px] transition hover:border-red-400 hover:text-red-600 dark:hover:text-red-400"
-            >
-              Delete
-            </button>
-            <button
-              type="button"
-              onClick={onToggleExpand}
-              className="muted ml-auto rounded-full px-3 py-1.5 text-[12px] transition hover:text-[rgb(var(--text))]"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
     </li>
   );
 }

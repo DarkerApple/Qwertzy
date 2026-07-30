@@ -14,7 +14,6 @@ import { Notebook } from './components/Notebook';
 import { Settings } from './components/Settings';
 import { Plugins } from './components/Plugins';
 import { Alarms } from './components/Alarms';
-import { Visualize } from './components/Visualize';
 import { VaultGate } from './components/VaultGate';
 import { CommandPalette } from './components/CommandPalette';
 import { PinnedTimerWidget } from './components/PinnedTimerWidget';
@@ -133,13 +132,44 @@ export default function App() {
       );
     }
 
-    if (route.name === 'visualize') {
+    if (route.name === 'note') {
+      // A note's page is the notebook it belongs to, showing one note instead
+      // of the month — same storage, same writing line, same everything.
+      const secret = route.secret === true;
+      if (secret && !vault) {
+        return (
+          <VaultGate
+            exists={hasVault}
+            onOpen={(opened) => {
+              setVault(opened);
+              setHasVault(true);
+            }}
+            onBack={goHome}
+            onReset={() => setHasVault(false)}
+            chrome={chrome}
+          />
+        );
+      }
       return (
-        <Visualize
-          items={items}
-          month={route.month ?? thisMonth}
-          onBack={goHome}
-          onOpenMonth={(month) => go({ name: 'month', month })}
+        <Notebook
+          key={secret ? 'vault' : 'main'}
+          storage={secret && vault ? vault.storage : mainStorage}
+          noteId={route.id}
+          onHome={goHome}
+          secret={secret}
+          onLock={
+            secret
+              ? () => {
+                  setVault(null);
+                  goHome();
+                }
+              : undefined
+          }
+          onOpenSettings={() => go({ name: 'settings' })}
+          onOpenNote={(id) =>
+            id ? go({ name: 'note', id, secret }) : go({ name: secret ? 'secret' : 'month', month: thisMonth })
+          }
+          applyCapture={plugins.applyCapture}
           chrome={chrome}
         />
       );
@@ -196,7 +226,7 @@ export default function App() {
             goHome();
           }}
           onOpenSettings={() => go({ name: 'settings' })}
-          onOpenVisualize={(month) => go({ name: 'visualize', month })}
+          onOpenNote={(id) => go({ name: 'note', id, secret: true })}
           applyCapture={plugins.applyCapture}
           chrome={chrome}
         />
@@ -212,7 +242,7 @@ export default function App() {
           onMonthChange={trackMonth}
           onHome={goHome}
           onOpenSettings={() => go({ name: 'settings' })}
-          onOpenVisualize={(month) => go({ name: 'visualize', month })}
+          onOpenNote={(id) => go({ name: 'note', id })}
           applyCapture={plugins.applyCapture}
           incoming={queued}
           onIncomingHandled={() => setQueued([])}
@@ -231,7 +261,6 @@ export default function App() {
         onOpenGuide={() => go({ name: 'guide' })}
         onOpenSecret={() => go({ name: 'secret' })}
         onOpenSettings={() => go({ name: 'settings' })}
-        onOpenVisualize={() => go({ name: 'visualize', month: thisMonth })}
         onOpenAlarms={() => go({ name: 'alarms' })}
         chrome={chrome}
       />
@@ -257,12 +286,6 @@ export default function App() {
             label: 'This month',
             hint: 'Write something',
             go: () => go({ name: 'month', month: thisMonth }),
-          },
-          {
-            id: 'visualize',
-            label: 'Visualise',
-            hint: 'The month as a tree, and a plotter',
-            go: () => go({ name: 'visualize', month: thisMonth }),
           },
           { id: 'alarms', label: 'Alarms', hint: 'Ring at a time of day', go: () => go({ name: 'alarms' }) },
           { id: 'secret', label: 'Secret notes', hint: 'Behind a password', go: () => go({ name: 'secret' }) },

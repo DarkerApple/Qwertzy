@@ -43,7 +43,7 @@ export function MonthAside({
     .sort((a, b) => (b.doneAt ?? 0) - (a.doneAt ?? 0))
     .slice(0, 4);
 
-  const threads = items.filter((item) => item.replies.length > 0);
+  const elaborated = items.filter((item) => items.some((other) => other.parentId === item.id));
 
   return (
     <aside className="hidden lg:sticky lg:block" style={{ top: 'calc(var(--header-h) + var(--tabs-h) + 20px)' }}>
@@ -66,7 +66,7 @@ export function MonthAside({
         <dl className="mt-4 grid grid-cols-3 gap-2 text-center">
           <Stat label="Notes" value={total} />
           <Stat label="To do" value={summary?.open ?? 0} />
-          <Stat label="Threads" value={threads.length} />
+          <Stat label="Deeper" value={elaborated.length} />
         </dl>
       </Panel>
 
@@ -126,11 +126,11 @@ export function MonthAside({
         </Panel>
       )}
 
-      {threads.length > 0 && (
+      {elaborated.length > 0 && (
         <Panel className="mt-3">
-          <h2 className="muted text-[10px] font-semibold uppercase tracking-[0.18em]">Threads</h2>
+          <h2 className="muted text-[10px] font-semibold uppercase tracking-[0.18em]">Elaborated</h2>
           <ul className="mt-2.5 space-y-1.5">
-            {threads.slice(0, 4).map((item) => (
+            {elaborated.slice(0, 4).map((item) => (
               <li key={item.id}>
                 <button
                   type="button"
@@ -142,7 +142,7 @@ export function MonthAside({
                     {withoutTimerTokens(item.text)}
                   </span>
                   <span className="muted shrink-0 text-[10px] tabular-nums">
-                    {item.replies.length}
+                    {items.filter((other) => other.parentId === item.id).length}
                   </span>
                 </button>
               </li>
